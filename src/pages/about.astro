@@ -1,0 +1,100 @@
+---
+import Base from "@/layouts/Base.astro";
+import Nav from "@/components/Nav.astro";
+import Footer from "@/components/Footer.astro";
+import Button from "@/components/ui/Button.astro";
+
+const siteName = import.meta.env.PUBLIC_SITE_NAME || "Example Co.";
+---
+
+<Base title="About" description="Learn more about our company and team">
+  <Nav />
+  <main id="main">
+    <!-- Hero Section -->
+    <section class="bg-gradient-to-b from-blue-50 to-white py-16">
+      <div class="container mx-auto px-6 text-center">
+        <h1 class="text-4xl font-bold text-gray-900 mb-4">About {siteName}</h1>
+        <p class="text-xl text-gray-600 max-w-2xl mx-auto">
+          Learn more about our company, our mission, and the team behind our success.
+        </p>
+      </div>
+    </section>
+
+    <!-- Company Story -->
+    <section class="py-16">
+      <div class="container mx-auto px-6">
+        <div class="grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">
+          <div>
+            <h2 class="text-3xl font-bold mb-6">Our Story</h2>
+            <div class="space-y-4 text-gray-600">
+              <p>
+                Founded with a vision to provide exceptional professional services, {siteName} has been helping businesses achieve their goals through innovative solutions and dedicated support.
+              </p>
+              <p>
+                Our team combines years of industry experience with cutting-edge technology to deliver results that exceed expectations. We believe in building long-term partnerships with our clients.
+              </p>
+              <p>
+                Today, we continue to grow and evolve, always staying ahead of industry trends to provide our clients with the most effective solutions available.
+              </p>
+            </div>
+          </div>
+          <div class="bg-gray-100 rounded-lg p-8 text-center">
+            <div class="text-4xl mb-4">📊</div>
+            <h3 class="text-xl font-semibold mb-4">Our Mission</h3>
+            <p class="text-gray-600">
+              To provide exceptional professional services that help our clients succeed and grow in an ever-changing business landscape.
+            </p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Values -->
+    <section class="py-16 bg-gray-50">
+      <div class="container mx-auto px-6">
+        <div class="text-center mb-12">
+          <h2 class="text-3xl font-bold mb-4">Our Values</h2>
+          <p class="text-lg text-gray-600 max-w-2xl mx-auto">
+            The principles that guide everything we do.
+          </p>
+        </div>
+        
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
+          <div class="text-center">
+            <div class="text-4xl mb-4">🎯</div>
+            <h3 class="text-xl font-semibold mb-3">Excellence</h3>
+            <p class="text-gray-600">
+              We strive for excellence in every project, delivering quality that exceeds expectations.
+            </p>
+          </div>
+          <div class="text-center">
+            <div class="text-4xl mb-4">🤝</div>
+            <h3 class="text-xl font-semibold mb-3">Integrity</h3>
+            <p class="text-gray-600">
+              We build trust through honest communication and transparent business practices.
+            </p>
+          </div>
+          <div class="text-center">
+            <div class="text-4xl mb-4">🚀</div>
+            <h3 class="text-xl font-semibold mb-3">Innovation</h3>
+            <p class="text-gray-600">
+              We embrace new technologies and approaches to provide cutting-edge solutions.
+            </p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- CTA Section -->
+    <section class="py-16">
+      <div class="container mx-auto px-6 text-center">
+        <h2 class="text-3xl font-bold mb-4">Ready to Work Together?</h2>
+        <p class="text-lg text-gray-600 mb-8 max-w-2xl mx-auto">
+          We'd love to hear about your project and discuss how we can help you achieve your goals.
+        </p>
+        <Button href="/contact" size="lg">Get in Touch</Button>
+      </div>
+    </section>
+  </main>
+  <Footer />
+</Base>
