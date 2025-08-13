@@ -1,0 +1,22 @@
+---
+import Button from "@/components/ui/Button.astro";
+---
+
+<section class="bg-primary text-white py-16">
+  <div class="container mx-auto px-6 text-center">
+    <h2 class="text-3xl font-bold mb-4">
+      Ready to Get Started?
+    </h2>
+    <p class="text-xl mb-8 opacity-90 max-w-2xl mx-auto">
+      Contact us today to discuss your project requirements and discover how we can help your business succeed.
+    </p>
+    <div class="flex flex-col sm:flex-row gap-4 justify-center">
+      <Button href="/contact" variant="secondary" size="lg">
+        Contact Us Now
+      </Button>
+      <Button href="/services" variant="outline" size="lg" class="border-white text-white hover:bg-white hover:text-primary">
+        View Services
+      </Button>
+    </div>
+  </div>
+</section>

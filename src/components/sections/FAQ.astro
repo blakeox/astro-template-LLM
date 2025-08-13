@@ -1,0 +1,46 @@
+---
+const faqs = [
+  {
+    question: "What services do you offer?",
+    answer: "We provide a comprehensive range of professional services tailored to meet your business needs. Contact us to discuss your specific requirements."
+  },
+  {
+    question: "How long does a typical project take?",
+    answer: "Project timelines vary depending on scope and complexity. We'll provide a detailed timeline during our initial consultation."
+  },
+  {
+    question: "Do you provide ongoing support?",
+    answer: "Yes, we offer ongoing support and maintenance services to ensure your solutions continue to perform optimally."
+  },
+  {
+    question: "How do I get started?",
+    answer: "Simply contact us through our contact form or call us directly. We'll schedule a consultation to discuss your project requirements."
+  }
+];
+---
+
+<section class="py-16 bg-gray-50">
+  <div class="container mx-auto px-6">
+    <div class="text-center mb-16">
+      <h2 class="text-3xl font-bold text-gray-900 mb-4">
+        Frequently Asked Questions
+      </h2>
+      <p class="text-lg text-gray-600 max-w-2xl mx-auto">
+        Find answers to common questions about our services and process.
+      </p>
+    </div>
+    
+    <div class="max-w-3xl mx-auto space-y-6">
+      {faqs.map((faq, index) => (
+        <details class="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
+          <summary class="cursor-pointer font-semibold text-gray-900 hover:text-primary transition-colors">
+            {faq.question}
+          </summary>
+          <p class="mt-4 text-gray-600 leading-relaxed">
+            {faq.answer}
+          </p>
+        </details>
+      ))}
+    </div>
+  </div>
+</section>
