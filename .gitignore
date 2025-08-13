@@ -44,3 +44,12 @@ playwright-report/
 
 # Wrangler
 .wrangler/
+
+# Template build outputs
+templates/*/dist/
+templates/*/node_modules/
+templates/*/.astro/
+
+# Registry artifacts
+README-old.md
+README-new.md
