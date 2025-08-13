@@ -1,0 +1,61 @@
+{
+  "name": "Astro Template Registry",
+  "description": "A curated collection of Astro templates for rapid website development",
+  "version": "1.0.0",
+  "templates": [
+    {
+      "id": "clean-landing",
+      "name": "Clean Landing Page",
+      "description": "A minimal brochure-site starter featuring Astro + Tailwind CSS for static pages, with an optional Cloudflare Worker endpoint for contact forms protected by Turnstile and KV storage.",
+      "version": "1.0.0",
+      "tags": [
+        "astro",
+        "tailwind",
+        "cloudflare",
+        "landing-page",
+        "business",
+        "responsive"
+      ],
+      "preview": "/templates/clean-landing/preview.png",
+      "manifest": "/templates/clean-landing/manifest.json",
+      "repository": "https://github.com/blakeox/astro-template-LLM/tree/main/templates/clean-landing",
+      "demo": null,
+      "author": "Astro Template LLM",
+      "license": "MIT",
+      "created_at": "2024-01-01T00:00:00Z",
+      "updated_at": "2024-01-01T00:00:00Z",
+      "capabilities": [
+        "responsive-design",
+        "seo-optimized",
+        "contact-form",
+        "security-headers",
+        "performance-optimized",
+        "accessibility-ready",
+        "typescript-support"
+      ],
+      "framework": "astro",
+      "styling": "tailwindcss",
+      "deployment": [
+        "cloudflare-pages",
+        "cloudflare-workers",
+        "static"
+      ]
+    }
+  ],
+  "stats": {
+    "total_templates": 1,
+    "frameworks": {
+      "astro": 1
+    },
+    "styling": {
+      "tailwindcss": 1
+    },
+    "deployment_targets": {
+      "cloudflare-pages": 1,
+      "cloudflare-workers": 1,
+      "static": 1
+    }
+  },
+  "api_version": "1.0",
+  "last_updated": "2025-08-13T22:34:00.026Z"
+}

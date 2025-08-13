@@ -1,4 +1,4 @@
-name: CI
+name: Template Registry CI
 
 on:
   push:
@@ -7,9 +7,70 @@ on:
     branches: [ main ]
 
 jobs:
-  build-and-test:
+  validate-registry:
     runs-on: ubuntu-latest
+    name: Validate Registry Structure
+    
+    steps:
+    - name: Checkout
+      uses: actions/checkout@v4
 
+    - name: Setup Node.js
+      uses: actions/setup-node@v4
+      with:
+        node-version: '18'
+
+    - name: Setup pnpm
+      uses: pnpm/action-setup@v4
+      with:
+        version: 9
+
+    - name: Validate registry structure
+      run: |
+        echo "🔍 Validating registry structure..."
+        
+        # Check required files exist
+        if [ ! -f "templates/index.json" ]; then
+          echo "❌ Missing templates/index.json"
+          exit 1
+        fi
+        
+        if [ ! -f "TEMPLATE_SPEC.md" ]; then
+          echo "❌ Missing TEMPLATE_SPEC.md"
+          exit 1
+        fi
+        
+        if [ ! -f "CONTRIBUTING.md" ]; then
+          echo "❌ Missing CONTRIBUTING.md"  
+          exit 1
+        fi
+        
+        # Validate JSON files
+        echo "📋 Validating JSON files..."
+        node -e "JSON.parse(require('fs').readFileSync('templates/index.json', 'utf8')); console.log('✅ templates/index.json is valid');"
+        
+        echo "✅ Registry structure validation passed"
+
+    - name: Validate individual templates
+      run: |
+        echo "🔍 Validating individual templates..."
+        for template_dir in templates/*/; do
+          if [ -d "$template_dir" ]; then
+            template_id=$(basename "$template_dir")
+            echo "Validating template: $template_id"
+            node tools/template-manager.cjs validate "$template_id"
+          fi
+        done
+
+  build-templates:
+    runs-on: ubuntu-latest
+    name: Build and Test Templates
+    needs: validate-registry
+    
+    strategy:
+      matrix:
+        template: [clean-landing]
+    
     steps:
     - name: Checkout
       uses: actions/checkout@v4
@@ -33,23 +94,72 @@ jobs:
       uses: actions/cache@v4
       with:
         path: ${{ env.STORE_PATH }}
-        key: ${{ runner.os }}-pnpm-store-${{ hashFiles('**/pnpm-lock.yaml') }}
+        key: ${{ runner.os }}-pnpm-store-${{ hashFiles('templates/${{ matrix.template }}/pnpm-lock.yaml') }}
         restore-keys: |
           ${{ runner.os }}-pnpm-store-
 
-    - name: Install dependencies
+    - name: Install template dependencies
+      working-directory: templates/${{ matrix.template }}
       run: pnpm install --frozen-lockfile
 
-    - name: Lint
+    - name: Lint template
+      working-directory: templates/${{ matrix.template }}
       run: pnpm lint
 
-    - name: Build
+    - name: Build template
+      working-directory: templates/${{ matrix.template }}
       run: pnpm build
 
-    - name: Run Lighthouse CI
+    - name: Test template (if tests exist)
+      working-directory: templates/${{ matrix.template }}
       run: |
-        pnpm preview &
-        sleep 5
-        npx lhci autorun
+        if [ -f "package.json" ] && grep -q '"test"' package.json; then
+          pnpm test
+        else
+          echo "No tests found, skipping test step"
+        fi
+
+  lighthouse-audit:
+    runs-on: ubuntu-latest
+    name: Performance Audit
+    needs: build-templates
+    
+    strategy:
+      matrix:
+        template: [clean-landing]
+    
+    steps:
+    - name: Checkout
+      uses: actions/checkout@v4
+
+    - name: Setup Node.js
+      uses: actions/setup-node@v4
+      with:
+        node-version: '18'
+
+    - name: Setup pnpm
+      uses: pnpm/action-setup@v4
+      with:
+        version: 9
+
+    - name: Install template dependencies
+      working-directory: templates/${{ matrix.template }}
+      run: pnpm install --frozen-lockfile
+
+    - name: Build template
+      working-directory: templates/${{ matrix.template }}
+      run: pnpm build
+
+    - name: Run Lighthouse CI (if configured)
+      working-directory: templates/${{ matrix.template }}
+      run: |
+        if [ -f ".lighthouserc.json" ]; then
+          echo "🏃‍♂️ Running Lighthouse audit for ${{ matrix.template }}"
+          pnpm preview &
+          sleep 5
+          npx lhci autorun --config=./.lighthouserc.json
+        else
+          echo "No Lighthouse configuration found for ${{ matrix.template }}, skipping audit"
+        fi
       env:
         LHCI_GITHUB_APP_TOKEN: ${{ secrets.LHCI_GITHUB_APP_TOKEN }}
