@@ -12,6 +12,32 @@ A minimal brochure-site starter template featuring Astro + Tailwind CSS for stat
 - **Performance**: Lighthouse score ≥90 out of the box
 - **CI/CD Ready**: GitHub Actions with automated Lighthouse testing
 - **Type Safe**: Full TypeScript support with Zod validation
+- **MCP Integration**: Schema-first AI generation with validation and automation
+
+## 🤖 MCP Integration
+
+This template is fully compatible with Model Context Protocol (MCP) for AI-driven website generation:
+
+- **Schema-First Generation**: JSON Schema validation for reliable AI output
+- **Component Manifest**: Machine-readable component documentation prevents prop invention
+- **Automated Validation**: Built-in validation scripts ensure generated sites build successfully
+- **Dry-Run Support**: Test generation without writing files
+- **CI/CD Validation**: Automated testing of MCP-generated outputs
+
+### Quick MCP Usage
+
+```bash
+# Generate site from prompt
+pnpm mcp:gen --prompt "Create a portfolio site for Design Co" --format json
+
+# Validate generated config
+tsx scripts/validate-site-config.ts site.config.generated.json
+
+# Test build with generated config
+pnpm build
+```
+
+**📖 [Full MCP Documentation](./docs/mcp-integration.md)**
 
 ## 📁 Project Structure
 

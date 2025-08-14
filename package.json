@@ -1,43 +1,44 @@
 {
-  "name": "astro-template-registry",
-  "version": "1.0.0",
-  "description": "A curated collection of production-ready Astro templates for rapid website development and LLM-driven automation",
-  "type": "module",
-  "scripts": {
-    "dev": "astro dev",
-    "build": "astro build",
-    "preview": "astro preview",
-    "format": "biome format --write .",
-    "lint": "biome lint .",
-    "test": "vitest run",
-    "e2e": "playwright test",
-    "gen": "tsx scripts/generate.ts",
-    "ci": "pnpm lint && pnpm build",
-    "template:validate": "node tools/template-manager.cjs validate",
-    "template:update-registry": "node tools/template-manager.cjs update-registry",
-    "template:help": "node tools/template-manager.cjs help"
-  },
-  "dependencies": {
-    "astro": "^4.15.4",
-    "@astrojs/tailwind": "^5.1.0",
-    "@astrojs/cloudflare": "^11.0.4",
-    "hono": "^4.6.3",
-    "resend": "^4.0.0",
-    "tailwindcss": "^3.4.10",
-    "zod": "^3.23.8"
-  },
-  "devDependencies": {
-    "typescript": "^5.6.2",
-    "tsx": "^4.19.0",
-    "@biomejs/biome": "^1.8.3",
-    "@types/node": "^22.5.4",
-    "@playwright/test": "^1.47.1",
-    "vitest": "^2.0.5",
-    "@lhci/cli": "^0.14.0"
-  },
-  "engines": {
-    "node": ">=18.0.0",
-    "pnpm": ">=8.0.0"
-  },
-  "packageManager": "pnpm@9.7.1"
+	"name": "astro-template-registry",
+	"version": "1.0.0",
+	"description": "A curated collection of production-ready Astro templates for rapid website development and LLM-driven automation",
+	"type": "module",
+	"scripts": {
+		"dev": "astro dev",
+		"build": "astro build",
+		"preview": "astro preview",
+		"format": "biome format --write .",
+		"lint": "biome lint .",
+		"test": "vitest run",
+		"e2e": "playwright test",
+		"gen": "tsx scripts/generate.ts",
+		"mcp:gen": "tsx scripts/generate.ts",
+		"ci": "pnpm lint && pnpm build",
+		"template:validate": "node tools/template-manager.cjs validate",
+		"template:update-registry": "node tools/template-manager.cjs update-registry",
+		"template:help": "node tools/template-manager.cjs help"
+	},
+	"dependencies": {
+		"astro": "^4.15.4",
+		"@astrojs/tailwind": "^5.1.0",
+		"@astrojs/cloudflare": "^11.0.4",
+		"hono": "^4.6.3",
+		"resend": "^4.0.0",
+		"tailwindcss": "^3.4.10",
+		"zod": "^3.23.8"
+	},
+	"devDependencies": {
+		"typescript": "^5.6.2",
+		"tsx": "^4.19.0",
+		"@biomejs/biome": "^1.8.3",
+		"@types/node": "^22.5.4",
+		"@playwright/test": "^1.47.1",
+		"vitest": "^2.0.5",
+		"@lhci/cli": "^0.14.0"
+	},
+	"engines": {
+		"node": ">=18.0.0",
+		"pnpm": ">=8.0.0"
+	},
+	"packageManager": "pnpm@9.7.1"
 }

@@ -1,0 +1,1 @@
+Create a small brochure site for "Lumen Studio". Return a JSON blob that validates against /site.config.schema.json. Include home.hero.title, home.hero.subtitle, home.features (3 items with title and description), about.blurb (1-2 sentences), contact.emailPlaceholder. Do not include secrets. Keep hero title under 8 words and feature descriptions under 120 characters.

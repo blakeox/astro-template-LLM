@@ -52,4 +52,6 @@ templates/*/.astro/
 
 # Registry artifacts
 README-old.md
-README-new.md
+README-new.md.backup.*
+site.config.generated.json
+*.generated.*

@@ -1,33 +1,34 @@
 ---
 export interface Props {
-  variant?: "primary" | "secondary" | "outline";
-  size?: "sm" | "md" | "lg";
-  href?: string;
-  type?: "button" | "submit" | "reset";
-  class?: string;
+	variant?: "primary" | "secondary" | "outline";
+	size?: "sm" | "md" | "lg";
+	href?: string;
+	type?: "button" | "submit" | "reset";
+	class?: string;
 }
 
-const { 
-  variant = "primary", 
-  size = "md", 
-  href, 
-  type = "button",
-  class: className = "",
-  ...rest 
+const {
+	variant = "primary",
+	size = "md",
+	href,
+	type = "button",
+	class: className = "",
+	...rest
 } = Astro.props;
 
-const baseClasses = "inline-flex items-center justify-center font-medium transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50";
+const baseClasses =
+	"inline-flex items-center justify-center font-medium transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50";
 
 const variants = {
-  primary: "bg-primary text-white hover:bg-primary/90",
-  secondary: "bg-gray-100 text-gray-900 hover:bg-gray-200", 
-  outline: "border border-gray-300 bg-white text-gray-700 hover:bg-gray-50"
+	primary: "bg-primary text-white hover:bg-primary/90",
+	secondary: "bg-gray-100 text-gray-900 hover:bg-gray-200",
+	outline: "border border-gray-300 bg-white text-gray-700 hover:bg-gray-50",
 };
 
 const sizes = {
-  sm: "h-9 px-3 text-sm rounded-md",
-  md: "h-10 px-4 py-2 rounded-md",
-  lg: "h-11 px-8 text-lg rounded-xl"
+	sm: "h-9 px-3 text-sm rounded-md",
+	md: "h-10 px-4 py-2 rounded-md",
+	lg: "h-11 px-8 text-lg rounded-xl",
 };
 
 const classes = `${baseClasses} ${variants[variant]} ${sizes[size]} ${className}`;

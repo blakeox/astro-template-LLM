@@ -1,0 +1,130 @@
+[
+	{
+		"prompt": "Create a small brochure site for \"Lumen Studio\". Return a JSON blob that validates against /site.config.schema.json. Include home.hero.title, home.hero.subtitle, home.features (3 items with title and description), about.blurb (1-2 sentences), contact.emailPlaceholder. Do not include secrets. Keep hero title under 8 words and feature descriptions under 120 characters.",
+		"expected_output": {
+			"name": "Lumen Studio",
+			"description": "Creative design studio providing innovative solutions for modern brands and businesses",
+			"pages": {
+				"home": {
+					"hero": {
+						"title": "Creative Design Solutions by Lumen",
+						"subtitle": "We transform your brand vision into stunning digital experiences that captivate and convert.",
+						"cta": {
+							"primary": { "text": "View Our Work", "href": "/services" },
+							"secondary": { "text": "Get in Touch", "href": "/contact" }
+						}
+					},
+					"features": [
+						{
+							"icon": "🎨",
+							"title": "Brand Design",
+							"description": "Complete brand identity packages including logos, typography, and visual guidelines for your business."
+						},
+						{
+							"icon": "💻",
+							"title": "Web Development",
+							"description": "Modern, responsive websites built with cutting-edge technology and optimized for performance."
+						},
+						{
+							"icon": "📱",
+							"title": "Digital Strategy",
+							"description": "Data-driven marketing strategies that help your brand reach and engage the right audience."
+						}
+					]
+				},
+				"about": {
+					"blurb": "Lumen Studio is a creative design agency specializing in brand identity and digital experiences. We help businesses shine brighter in the digital landscape."
+				},
+				"contact": {
+					"emailPlaceholder": "Enter your email to get started"
+				}
+			}
+		}
+	},
+	{
+		"prompt": "Generate a professional consulting website for \"Apex Advisory Group\". Include 4 features on the home page focusing on business consulting services. Add an about page with a brief company description. Make sure all content validates against the schema.",
+		"expected_output": {
+			"name": "Apex Advisory Group",
+			"description": "Strategic business consulting firm helping companies achieve peak performance and sustainable growth",
+			"pages": {
+				"home": {
+					"hero": {
+						"title": "Strategic Business Growth with Apex",
+						"subtitle": "Expert consulting services to optimize operations, increase profitability, and drive sustainable business growth.",
+						"cta": {
+							"primary": { "text": "Our Services", "href": "/services" },
+							"secondary": {
+								"text": "Schedule Consultation",
+								"href": "/contact"
+							}
+						}
+					},
+					"features": [
+						{
+							"icon": "📊",
+							"title": "Strategic Planning",
+							"description": "Comprehensive business strategy development to align your operations with long-term growth objectives."
+						},
+						{
+							"icon": "⚡",
+							"title": "Process Optimization",
+							"description": "Streamline operations and eliminate inefficiencies to boost productivity and reduce costs."
+						},
+						{
+							"icon": "📈",
+							"title": "Performance Analytics",
+							"description": "Data-driven insights and KPI tracking to measure success and identify improvement opportunities."
+						},
+						{
+							"icon": "🤝",
+							"title": "Change Management",
+							"description": "Expert guidance through organizational transformations and business restructuring initiatives."
+						}
+					]
+				},
+				"about": {
+					"blurb": "Apex Advisory Group delivers proven consulting solutions to mid-market companies. Our experienced team helps businesses navigate complex challenges and achieve sustainable growth through strategic planning and operational excellence."
+				}
+			}
+		}
+	},
+	{
+		"prompt": "Create a portfolio website for \"Digital Craftworks\" - a web development agency. Include home page with hero and 3 features about their services. Add contact page with email placeholder. Keep descriptions concise and professional.",
+		"expected_output": {
+			"name": "Digital Craftworks",
+			"description": "Professional web development agency crafting custom digital solutions for modern businesses",
+			"pages": {
+				"home": {
+					"hero": {
+						"title": "Custom Web Solutions by Craftworks",
+						"subtitle": "We build powerful, scalable websites and applications that drive business growth and user engagement.",
+						"cta": {
+							"primary": { "text": "View Portfolio", "href": "/services" },
+							"secondary": { "text": "Start Project", "href": "/contact" }
+						}
+					},
+					"features": [
+						{
+							"icon": "⚡",
+							"title": "Fast Development",
+							"description": "Rapid prototyping and development cycles to get your project to market quickly and efficiently."
+						},
+						{
+							"icon": "🛡️",
+							"title": "Secure & Scalable",
+							"description": "Enterprise-grade security and architecture designed to grow with your business needs."
+						},
+						{
+							"icon": "🎯",
+							"title": "Custom Solutions",
+							"description": "Tailored web applications built specifically for your business requirements and goals."
+						}
+					]
+				},
+				"contact": {
+					"emailPlaceholder": "Enter your email for project discussion"
+				}
+			}
+		}
+	}
+]
