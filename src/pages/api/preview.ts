@@ -38,8 +38,39 @@ export const POST: APIRoute = async ({ request }) => {
 	const startTime = Date.now();
 	
 	try {
-		// Parse request body
-		const body = await request.json() as PreviewRequest;
+		// Parse request body with better error handling
+		let body: PreviewRequest;
+		try {
+			const text = await request.text();
+			console.log("Raw request text:", text);
+			
+			if (!text || text.trim() === "") {
+				return new Response(
+					JSON.stringify({
+						success: false,
+						error: "Empty request body",
+					} as PreviewResponse),
+					{
+						status: 400,
+						headers: { "Content-Type": "application/json" },
+					}
+				);
+			}
+			
+			body = JSON.parse(text) as PreviewRequest;
+		} catch (jsonError) {
+			console.error("JSON parse error:", jsonError);
+			return new Response(
+				JSON.stringify({
+					success: false,
+					error: "Invalid JSON in request body: " + jsonError.message,
+				} as PreviewResponse),
+				{
+					status: 400,
+					headers: { "Content-Type": "application/json" },
+				}
+			);
+		}
 		
 		if (!body.prompt?.trim()) {
 			return new Response(
