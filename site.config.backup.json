@@ -1,0 +1,56 @@
+{
+  "name": "Example Co.",
+  "description": "Professional services company",
+  "pages": {
+    "home": {
+      "hero": {
+        "title": "Welcome to Example Co.",
+        "subtitle": "We provide professional services and solutions to help your business grow and succeed in today's competitive market.",
+        "cta": {
+          "primary": { "text": "Our Services", "href": "/services" },
+          "secondary": { "text": "Get in Touch", "href": "/contact" }
+        }
+      },
+      "features": [
+        {
+          "icon": "🎯",
+          "title": "Professional Service",
+          "description": "High-quality solutions tailored to your specific business needs and requirements."
+        },
+        {
+          "icon": "👥",
+          "title": "Expert Team",
+          "description": "Experienced professionals dedicated to delivering exceptional results for your projects."
+        },
+        {
+          "icon": "🛠️",
+          "title": "Reliable Support",
+          "description": "Ongoing support and maintenance to ensure your solutions continue to perform optimally."
+        }
+      ]
+    },
+    "services": {
+      "hero": {
+        "title": "Our Services",
+        "subtitle": "We offer comprehensive professional services designed to help your business succeed and grow."
+      },
+      "services": [
+        {
+          "title": "Consulting",
+          "description": "Strategic consulting services to help your business identify opportunities and overcome challenges.",
+          "features": ["Strategic Planning", "Process Optimization", "Market Analysis", "Risk Assessment"]
+        },
+        {
+          "title": "Development",
+          "description": "Custom development solutions tailored to your specific business requirements and goals.",
+          "features": ["Web Applications", "Mobile Solutions", "System Integration", "API Development"]
+        },
+        {
+          "title": "Support & Maintenance",
+          "description": "Ongoing support and maintenance services to keep your systems running smoothly.",
+          "features": ["24/7 Support", "Regular Updates", "Performance Monitoring", "Security Patches"]
+        }
+      ]
+    }
+  }
+}

@@ -1,0 +1,35 @@
+{
+  "name": "Lumen Studio",
+  "description": "Professional brochure website for Lumen Studio",
+  "pages": {
+    "home": {
+      "hero": {
+        "title": "Creative Solutions by Lumen Studio",
+        "subtitle": "We transform your vision into stunning digital experiences that captivate and convert."
+      },
+      "features": [
+        {
+          "icon": "🎨",
+          "title": "Brand Design",
+          "description": "Complete brand identity packages including logos, typography, and visual guidelines."
+        },
+        {
+          "icon": "💻",
+          "title": "Web Development",
+          "description": "Modern, responsive websites built with cutting-edge technology and optimization."
+        },
+        {
+          "icon": "📱",
+          "title": "Digital Strategy",
+          "description": "Data-driven marketing strategies to reach and engage the right audience effectively."
+        }
+      ]
+    },
+    "about": {
+      "blurb": "Lumen Studio is a creative design studio specializing in brand identity and digital experiences. We help businesses shine brighter in the digital landscape."
+    },
+    "contact": {
+      "emailPlaceholder": "Enter your email to start your project"
+    }
+  }
+}

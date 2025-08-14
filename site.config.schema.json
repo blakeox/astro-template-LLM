@@ -1,0 +1,249 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "Site Configuration Schema",
+  "description": "Schema for site.config.json files for MCP-driven website generation",
+  "type": "object",
+  "required": ["name", "description", "pages"],
+  "properties": {
+    "name": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 100,
+      "description": "Site name"
+    },
+    "description": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 200,
+      "description": "Site description"
+    },
+    "pages": {
+      "type": "object",
+      "required": ["home"],
+      "properties": {
+        "home": {
+          "$ref": "#/definitions/HomePage"
+        },
+        "about": {
+          "$ref": "#/definitions/AboutPage"
+        },
+        "contact": {
+          "$ref": "#/definitions/ContactPage"
+        },
+        "services": {
+          "$ref": "#/definitions/ServicesPage"
+        }
+      },
+      "additionalProperties": false
+    },
+    "images": {
+      "type": "array",
+      "items": {
+        "$ref": "#/definitions/Image"
+      },
+      "description": "Site images with alt text"
+    }
+  },
+  "additionalProperties": false,
+  "definitions": {
+    "Image": {
+      "type": "object",
+      "required": ["url", "alt"],
+      "properties": {
+        "url": {
+          "type": "string",
+          "format": "uri"
+        },
+        "alt": {
+          "type": "string",
+          "minLength": 1
+        }
+      },
+      "additionalProperties": false
+    },
+    "CTA": {
+      "type": "object",
+      "required": ["text", "href"],
+      "properties": {
+        "text": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 50
+        },
+        "href": {
+          "type": "string",
+          "minLength": 1
+        }
+      },
+      "additionalProperties": false
+    },
+    "Hero": {
+      "type": "object",
+      "required": ["title", "subtitle"],
+      "properties": {
+        "title": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 60,
+          "description": "Keep hero title under 8 words"
+        },
+        "subtitle": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 300
+        },
+        "cta": {
+          "type": "object",
+          "properties": {
+            "primary": {
+              "$ref": "#/definitions/CTA"
+            },
+            "secondary": {
+              "$ref": "#/definitions/CTA"
+            }
+          },
+          "additionalProperties": false
+        }
+      },
+      "additionalProperties": false
+    },
+    "Feature": {
+      "type": "object",
+      "required": ["title", "description"],
+      "properties": {
+        "icon": {
+          "type": "string",
+          "maxLength": 10
+        },
+        "title": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 50
+        },
+        "description": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 120,
+          "description": "Keep feature descriptions under 120 characters"
+        }
+      },
+      "additionalProperties": false
+    },
+    "Service": {
+      "type": "object",
+      "required": ["title", "description"],
+      "properties": {
+        "title": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 50
+        },
+        "description": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 200
+        },
+        "features": {
+          "type": "array",
+          "items": {
+            "type": "string",
+            "maxLength": 100
+          }
+        }
+      },
+      "additionalProperties": false
+    },
+    "HomePage": {
+      "type": "object",
+      "required": ["hero", "features"],
+      "properties": {
+        "hero": {
+          "$ref": "#/definitions/Hero"
+        },
+        "features": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/Feature"
+          },
+          "minItems": 1,
+          "maxItems": 6
+        }
+      },
+      "additionalProperties": false
+    },
+    "AboutPage": {
+      "type": "object",
+      "properties": {
+        "hero": {
+          "$ref": "#/definitions/Hero"
+        },
+        "blurb": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 500,
+          "description": "1-2 sentences about the company"
+        },
+        "team": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "required": ["name", "role"],
+            "properties": {
+              "name": {
+                "type": "string",
+                "minLength": 1
+              },
+              "role": {
+                "type": "string",
+                "minLength": 1
+              },
+              "bio": {
+                "type": "string",
+                "maxLength": 200
+              }
+            },
+            "additionalProperties": false
+          }
+        }
+      },
+      "additionalProperties": false
+    },
+    "ContactPage": {
+      "type": "object",
+      "properties": {
+        "hero": {
+          "$ref": "#/definitions/Hero"
+        },
+        "emailPlaceholder": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 100
+        },
+        "address": {
+          "type": "string",
+          "maxLength": 200
+        },
+        "phone": {
+          "type": "string",
+          "pattern": "^[+]?[0-9\\s\\-\\(\\)]+$"
+        }
+      },
+      "additionalProperties": false
+    },
+    "ServicesPage": {
+      "type": "object",
+      "properties": {
+        "hero": {
+          "$ref": "#/definitions/Hero"
+        },
+        "services": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/Service"
+          }
+        }
+      },
+      "additionalProperties": false
+    }
+  }
+}

@@ -1,0 +1,120 @@
+name: MCP Generation Check
+
+on:
+  pull_request:
+    branches: [ main ]
+    paths:
+      - 'mcp/**'
+      - 'scripts/**'
+      - 'site.config.json'
+      - 'site.config.schema.json'
+      - 'prompts/**'
+  workflow_dispatch:
+
+jobs:
+  mcp-validation:
+    runs-on: ubuntu-latest
+    name: Validate MCP Generation
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '18'
+          
+      - name: Setup pnpm
+        uses: pnpm/action-setup@v4
+        with:
+          version: 9
+
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+
+      - name: Lint code
+        run: pnpm lint
+        continue-on-error: true
+
+      - name: Test current site config validation
+        run: tsx scripts/validate-site-config.ts site.config.json
+
+      - name: Test MCP generator with sample prompt
+        run: |
+          echo "Testing MCP generator with sample prompt..."
+          pnpm mcp:gen --dry --prompt "$(cat scripts/sample-mcp-prompt.txt)" --format=json > site.config.generated.json
+
+      - name: Validate generated config
+        run: |
+          echo "Validating generated site config..."
+          tsx scripts/validate-site-config.ts site.config.generated.json
+
+      - name: Test build with generated config
+        run: |
+          echo "Testing build with generated config..."
+          # Backup original config
+          cp site.config.json site.config.original.json
+          # Use generated config temporarily
+          cp site.config.generated.json site.config.json
+          # Test build
+          pnpm build
+          # Restore original config
+          cp site.config.original.json site.config.json
+
+      - name: Upload generated artifacts
+        uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: mcp-generated-config
+          path: |
+            site.config.generated.json
+            site.config.original.json
+          retention-days: 7
+
+      - name: Comment on PR with results
+        if: github.event_name == 'pull_request'
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const fs = require('fs');
+            
+            let generatedConfig = {};
+            try {
+              const configContent = fs.readFileSync('site.config.generated.json', 'utf8');
+              generatedConfig = JSON.parse(configContent);
+            } catch (error) {
+              console.log('Could not read generated config:', error.message);
+            }
+
+            const body = `## 🤖 MCP Generation Check Results
+
+            ✅ **Generated Site Config**: Successfully generated and validated
+            📊 **Sample Prompt**: \`$(cat scripts/sample-mcp-prompt.txt)\`
+            🏗️ **Build Test**: Passed with generated configuration
+
+            ### Generated Site Details
+            - **Name**: ${generatedConfig.name || 'N/A'}
+            - **Description**: ${generatedConfig.description || 'N/A'} 
+            - **Pages**: ${Object.keys(generatedConfig.pages || {}).join(', ') || 'N/A'}
+            - **Features**: ${generatedConfig.pages?.home?.features?.length || 0} items
+
+            ### Commands to run locally:
+            \`\`\`bash
+            pnpm install
+            pnpm mcp:gen --dry --prompt "$(cat scripts/sample-mcp-prompt.txt)" --format=json
+            tsx scripts/validate-site-config.ts site.config.generated.json
+            pnpm build
+            \`\`\`
+
+            ### Artifacts
+            - Generated config available as workflow artifact
+            - Build output validated successfully
+            `;
+            
+            github.rest.issues.createComment({
+              issue_number: context.issue.number,
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              body: body
+            });
