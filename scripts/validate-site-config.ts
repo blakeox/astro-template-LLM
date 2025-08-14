@@ -101,7 +101,7 @@ async function validateSiteConfig(configPath: string): Promise<void> {
 		console.log("🔍 Validating site config:", configPath);
 
 		const configContent = fs.readFileSync(configPath, "utf-8");
-		let config: any;
+		let config: unknown;
 
 		try {
 			config = JSON.parse(configContent);

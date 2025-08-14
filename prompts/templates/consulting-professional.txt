@@ -1,0 +1,14 @@
+Build a professional consulting website for "${COMPANY_NAME:-Advisory Group}". Create a site configuration that validates against /site.config.schema.json with these requirements:
+
+- Authoritative hero section establishing expertise and credibility
+- Hero title under 8 words emphasizing strategic value
+- 4 features showcasing core consulting capabilities and methodologies
+- About page highlighting experience, expertise, and proven results
+- Contact page for consultation requests
+- Professional, authoritative tone appropriate for C-suite audience
+- Business-focused feature descriptions under 120 characters
+- Use business/strategy-related icons (📊, 📈, 🎯, ⚡, 🤝, etc.)
+- Emphasize results, strategy, transformation, and growth
+- Content should convey trust and expertise
+
+Generate content that positions the firm as a trusted strategic partner for business growth.

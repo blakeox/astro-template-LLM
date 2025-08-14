@@ -1,6 +1,6 @@
-import crypto from "node:crypto";
+import crypto from "crypto";
 import { z } from "zod";
-import type { SiteConfig } from "../types/site-config.js";
+import type { SiteConfig, Feature } from "../types/site-config.js";
 
 // MCP Client Helper Functions
 // This module provides typed functions for MCP integration
@@ -19,7 +19,7 @@ export interface ValidationResult {
 	warnings?: string[];
 }
 
-export interface MCPResponse<T = any> {
+export interface MCPResponse<T = unknown> {
 	success: boolean;
 	data?: T;
 	error?: string;
@@ -112,7 +112,7 @@ export async function generateSiteConfig(
  * @returns Promise<ValidationResult>
  */
 export async function validateArtifact(
-	artifact: any,
+	artifact: unknown,
 	schemaPath: string,
 ): Promise<ValidationResult> {
 	try {
@@ -191,7 +191,7 @@ function extractSiteName(prompt: string): string | null {
 
 	for (const pattern of patterns) {
 		const match = prompt.match(pattern);
-		if (match && match[1] && match[1].length < 50) {
+		if (match?.[1] && match[1].length < 50) {
 			return match[1];
 		}
 	}
@@ -234,7 +234,7 @@ function extractHeroSubtitle(prompt: string): string | null {
 	return null;
 }
 
-function generateFeatures(prompt: string, count: number): any[] {
+function generateFeatures(prompt: string, count: number): Feature[] {
 	const defaultFeatures = [
 		{
 			title: "Professional Service",

@@ -1,0 +1,14 @@
+Generate a full-service marketing agency website for "${COMPANY_NAME:-Digital Marketing Pro}". Create JSON that validates against /site.config.schema.json:
+
+- Results-driven hero section showcasing marketing expertise and ROI focus
+- Hero title under 8 words emphasizing growth and results
+- 4-6 features covering key marketing services (SEO, PPC, Social, Content, etc.)
+- About page with agency experience, team expertise, and client success stories
+- Contact page for campaign consultations and audits
+- Professional yet dynamic tone suitable for marketing directors and CMOs
+- Results-focused descriptions under 120 characters
+- Use marketing-related icons (📊, 📈, 🎯, 🚀, 📱, 💡, etc.)
+- Emphasize ROI, growth, data-driven results, and measurable success
+- Include partnership and collaboration messaging
+
+Content should demonstrate marketing expertise and attract business clients seeking growth.
