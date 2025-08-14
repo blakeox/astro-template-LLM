@@ -1,0 +1,76 @@
+---
+import Base from "@/layouts/Base.astro";
+import Nav from "@/components/Nav.astro";
+import Footer from "@/components/Footer.astro";
+import Button from "@/components/ui/Button.astro";
+
+const services = [
+  {
+    title: "Consulting",
+    description: "Strategic consulting services to help your business identify opportunities and overcome challenges.",
+    features: ["Strategic Planning", "Process Optimization", "Market Analysis", "Risk Assessment"]
+  },
+  {
+    title: "Development",
+    description: "Custom development solutions tailored to your specific business requirements and goals.",
+    features: ["Web Applications", "Mobile Solutions", "System Integration", "API Development"]
+  },
+  {
+    title: "Support & Maintenance",
+    description: "Ongoing support and maintenance services to keep your systems running smoothly.",
+    features: ["24/7 Support", "Regular Updates", "Performance Monitoring", "Security Patches"]
+  }
+];
+---
+
+<Base title="Services" description="Discover our comprehensive range of professional services">
+  <Nav />
+  <main id="main">
+    <!-- Hero Section -->
+    <section class="bg-gradient-to-b from-blue-50 to-white py-16">
+      <div class="container mx-auto px-6 text-center">
+        <h1 class="text-4xl font-bold text-gray-900 mb-4">Our Services</h1>
+        <p class="text-xl text-gray-600 max-w-2xl mx-auto">
+          We offer comprehensive professional services designed to help your business succeed and grow.
+        </p>
+      </div>
+    </section>
+
+    <!-- Services Grid -->
+    <section class="py-16">
+      <div class="container mx-auto px-6">
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
+          {services.map((service) => (
+            <div class="bg-white border border-gray-200 rounded-lg p-8 hover:shadow-lg transition-shadow">
+              <h2 class="text-2xl font-semibold mb-4">{service.title}</h2>
+              <p class="text-gray-600 mb-6">{service.description}</p>
+              <ul class="space-y-2 mb-8">
+                {service.features.map((feature) => (
+                  <li class="flex items-center text-sm">
+                    <svg class="w-4 h-4 text-green-500 mr-2" fill="currentColor" viewBox="0 0 20 20">
+                      <path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"></path>
+                    </svg>
+                    {feature}
+                  </li>
+                ))}
+              </ul>
+              <Button href="/contact">Get Started</Button>
+            </div>
+          ))}
+        </div>
+      </div>
+    </section>
+
+    <!-- CTA Section -->
+    <section class="bg-gray-50 py-16">
+      <div class="container mx-auto px-6 text-center">
+        <h2 class="text-3xl font-bold mb-4">Need Custom Solutions?</h2>
+        <p class="text-lg text-gray-600 mb-8 max-w-2xl mx-auto">
+          We can create custom solutions tailored specifically to your business needs and requirements.
+        </p>
+        <Button href="/contact" size="lg">Discuss Your Project</Button>
+      </div>
+    </section>
+  </main>
+  <Footer />
+</Base>

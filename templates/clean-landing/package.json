@@ -1,7 +1,7 @@
 {
-  "name": "astro-template-registry",
-  "version": "1.0.0",
-  "description": "A curated collection of production-ready Astro templates for rapid website development and LLM-driven automation",
+  "name": "astro-brochure-template",
+  "version": "0.1.0",
+  "description": "Astro + Tailwind brochure site starter with Cloudflare Worker contact form",
   "type": "module",
   "scripts": {
     "dev": "astro dev",
@@ -12,10 +12,7 @@
     "test": "vitest run",
     "e2e": "playwright test",
     "gen": "tsx scripts/generate.ts",
-    "ci": "pnpm lint && pnpm build",
-    "template:validate": "node tools/template-manager.cjs validate",
-    "template:update-registry": "node tools/template-manager.cjs update-registry",
-    "template:help": "node tools/template-manager.cjs help"
+    "ci": "pnpm lint && pnpm build"
   },
   "dependencies": {
     "astro": "^4.15.4",

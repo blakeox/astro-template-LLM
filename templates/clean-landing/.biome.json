@@ -1,15 +1,8 @@
 {
   "$schema": "https://biomejs.dev/schemas/1.8.3/schema.json",
   "files": {
-    "ignore": [
-      "dist/**",
-      "node_modules/**", 
-      "templates/**",
-      "tools/**",
-      "README-old.md",
-      "**/dist/**",
-      "**/node_modules/**"
-    ]
+    "include": ["src/**/*", "scripts/**/*"],
+    "ignore": ["dist", "node_modules"]
   },
   "formatter": {
     "enabled": true,
@@ -28,7 +21,7 @@
   "javascript": {
     "formatter": {
       "quoteStyle": "double",
-      "jsxQuoteStyle": "double", 
+      "jsxQuoteStyle": "double",
       "semicolons": "always",
       "trailingCommas": "es5"
     }
