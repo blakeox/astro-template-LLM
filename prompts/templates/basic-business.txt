@@ -1,0 +1,13 @@
+Create a professional business website for "${COMPANY_NAME:-Your Company}". Generate a site configuration that validates against /site.config.schema.json with the following requirements:
+
+- Home page with compelling hero section (title under 8 words, subtitle under 300 characters)
+- ${FEATURES_COUNT:-3} features highlighting key business capabilities
+- Professional, trustworthy tone appropriate for ${INDUSTRY:-business services}
+- Include about page with company background (1-2 sentences)
+- Include contact page with email form
+- Ensure all content is business-appropriate and error-free
+- Use emoji icons for features (single emoji, max 10 chars)
+- Keep feature descriptions under 120 characters
+- No API keys, secrets, or sensitive information
+
+Return only valid JSON that matches the schema structure.

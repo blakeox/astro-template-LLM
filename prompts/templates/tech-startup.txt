@@ -1,0 +1,14 @@
+Create a modern technology startup website for "${COMPANY_NAME:-TechCorp}". Generate a JSON configuration validating against /site.config.schema.json:
+
+- Innovative hero section highlighting the tech solution and value proposition
+- Hero title under 8 words capturing the core technology benefit
+- 3-4 features showcasing product capabilities, technical advantages, and benefits
+- About page with startup story, mission, and technology focus
+- Contact page for demo requests and partnerships
+- Modern, innovative tone suitable for tech-savvy audience
+- Product-focused descriptions under 120 characters
+- Use tech-related icons (🚀, ⚡, 🔧, 💡, 🌐, 📱, etc.)
+- Emphasize innovation, scalability, efficiency, and future-ready solutions
+- Include subtle growth and partnership messaging
+
+Content should appeal to early adopters and business decision makers in technology space.

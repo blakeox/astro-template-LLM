@@ -1,0 +1,14 @@
+Generate a creative portfolio website for "${COMPANY_NAME:-Creative Studio}". Return a JSON configuration that validates against /site.config.schema.json with these specifications:
+
+- Creative and engaging hero section showcasing artistic capabilities
+- Hero title under 8 words that captures creative essence
+- 3-4 features highlighting portfolio strengths and creative services
+- About page with creative studio background and mission
+- Contact page for project inquiries
+- Creative but professional tone suitable for design/creative industry
+- Visual-focused feature descriptions under 120 characters
+- Use design-related emoji icons (🎨, 💡, ✨, 🌟, etc.)
+- Emphasize creativity, innovation, and visual excellence
+- No placeholder content - make it feel authentic
+
+Ensure all generated content validates against the schema and maintains professional standards.

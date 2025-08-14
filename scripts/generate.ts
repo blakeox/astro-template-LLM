@@ -1,7 +1,7 @@
 import * as fs from "node:fs";
 import * as path from "node:path";
 import { z } from "zod";
-import type { SiteConfig } from "../src/types/site-config.js";
+import type { SiteConfig, Feature } from "../src/types/site-config.js";
 
 // Zod schema for validation - matches site.config.schema.json
 const SiteConfigSchema = z.object({
@@ -125,12 +125,11 @@ async function validateSiteConfig(
 
 		if (result.success) {
 			return { valid: true, config: result.data as SiteConfig };
-		} else {
-			const errors = result.error.errors.map(
-				(err) => `${err.path.join(".")}: ${err.message}`,
-			);
-			return { valid: false, errors };
 		}
+		const errors = result.error.errors.map(
+			(err) => `${err.path.join(".")}: ${err.message}`,
+		);
+		return { valid: false, errors };
 	} catch (error) {
 		return { valid: false, errors: [error.message] };
 	}
@@ -215,10 +214,10 @@ function extractSiteDescription(prompt: string, siteName: string): string {
 		return `Strategic consulting services and business solutions from ${siteName}`;
 	}
 	if (prompt.toLowerCase().includes("studio")) {
-		return `Creative design studio providing innovative solutions for modern brands`;
+		return "Creative design studio providing innovative solutions for modern brands";
 	}
 	if (prompt.toLowerCase().includes("agency")) {
-		return `Professional digital agency delivering results-driven solutions`;
+		return "Professional digital agency delivering results-driven solutions";
 	}
 
 	return `Professional services and solutions from ${siteName}`;
@@ -243,22 +242,22 @@ function generateHeroTitle(siteName: string, prompt: string): string {
 
 function generateHeroSubtitle(siteName: string, prompt: string): string {
 	if (prompt.toLowerCase().includes("studio")) {
-		return `We transform your vision into stunning digital experiences that captivate and convert.`;
+		return "We transform your vision into stunning digital experiences that captivate and convert.";
 	}
 	if (prompt.toLowerCase().includes("consulting")) {
-		return `Strategic consulting services to optimize operations, increase profitability, and drive growth.`;
+		return "Strategic consulting services to optimize operations, increase profitability, and drive growth.";
 	}
 	if (prompt.toLowerCase().includes("portfolio")) {
-		return `Showcasing innovative projects and creative solutions that make an impact.`;
+		return "Showcasing innovative projects and creative solutions that make an impact.";
 	}
 	if (prompt.toLowerCase().includes("agency")) {
-		return `Professional digital services to help your business succeed in the modern marketplace.`;
+		return "Professional digital services to help your business succeed in the modern marketplace.";
 	}
 
-	return `Professional services and solutions to help your business grow and succeed.`;
+	return "Professional services and solutions to help your business grow and succeed.";
 }
 
-function generateFeatures(prompt: string): any[] {
+function generateFeatures(prompt: string): Feature[] {
 	if (
 		prompt.toLowerCase().includes("studio") ||
 		prompt.toLowerCase().includes("design")
@@ -460,7 +459,7 @@ async function generatePages(
 			}
 			throw new Error(`Invalid site config: ${validation.errors?.join(", ")}`);
 		}
-		config = validation.config!;
+		config = validation.config as SiteConfig;
 		result.valid = true;
 	}
 
