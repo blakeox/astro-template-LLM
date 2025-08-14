@@ -18,10 +18,12 @@ export const CTASchema = z.object({
 export const HeroSchema = z.object({
 	title: z.string().min(1).max(60).describe("Keep hero title under 8 words"),
 	subtitle: z.string().min(1).max(300),
-	cta: z.object({
-		primary: CTASchema.optional(),
-		secondary: CTASchema.optional(),
-	}).optional(),
+	cta: z
+		.object({
+			primary: CTASchema.optional(),
+			secondary: CTASchema.optional(),
+		})
+		.optional(),
 });
 
 export const FeatureSchema = z.object({
@@ -50,7 +52,12 @@ export const HomePageSchema = z.object({
 
 export const AboutPageSchema = z.object({
 	hero: HeroSchema.optional(),
-	blurb: z.string().min(1).max(500).optional().describe("1-2 sentences recommended"),
+	blurb: z
+		.string()
+		.min(1)
+		.max(500)
+		.optional()
+		.describe("1-2 sentences recommended"),
 	team: z.array(TeamMemberSchema).optional(),
 });
 
@@ -58,7 +65,10 @@ export const ContactPageSchema = z.object({
 	hero: HeroSchema.optional(),
 	emailPlaceholder: z.string().min(1).max(100).optional(),
 	address: z.string().max(200).optional(),
-	phone: z.string().regex(/^[+]?[0-9\s\-\(\)]+$/).optional(),
+	phone: z
+		.string()
+		.regex(/^[+]?[0-9\s\-\(\)]+$/)
+		.optional(),
 });
 
 export const ServicesPageSchema = z.object({
@@ -96,33 +106,43 @@ export type SitePages = z.infer<typeof SitePagesSchema>;
 export type SiteConfig = z.infer<typeof SiteConfigSchema>;
 
 // Validation functions
-export function validateSiteConfig(config: unknown): z.SafeParseReturnType<unknown, SiteConfig> {
+export function validateSiteConfig(
+	config: unknown,
+): z.SafeParseReturnType<unknown, SiteConfig> {
 	return SiteConfigSchema.safeParse(config);
 }
 
-export function validatePage<T>(page: unknown, schema: z.ZodSchema<T>): z.SafeParseReturnType<unknown, T> {
+export function validatePage<T>(
+	page: unknown,
+	schema: z.ZodSchema<T>,
+): z.SafeParseReturnType<unknown, T> {
 	return schema.safeParse(page);
 }
 
 // Content validation utilities
-export function validateContentLimits(config: SiteConfig): { valid: boolean; warnings: string[] } {
+export function validateContentLimits(config: SiteConfig): {
+	valid: boolean;
+	warnings: string[];
+} {
 	const warnings: string[] = [];
-	
+
 	// Check hero title word count (should be under 8 words)
 	const heroTitle = config.pages.home.hero.title;
 	const wordCount = heroTitle.split(/\s+/).length;
 	if (wordCount > 8) {
 		warnings.push(`Hero title has ${wordCount} words (recommended: ≤8 words)`);
 	}
-	
+
 	// Check feature descriptions length
 	for (let i = 0; i < config.pages.home.features.length; i++) {
 		const feature = config.pages.home.features[i];
 		if (feature.description.length > 120) {
-			warnings.push(`Feature ${i + 1} description is ${feature.description.length} chars (recommended: ≤120 chars)`);
+			warnings.push(
+				`Feature ${i + 1} description is ${feature.description.length} chars (recommended: ≤120 chars)`,
+			);
 		}
 	}
-	
+
 	return {
 		valid: warnings.length === 0,
 		warnings,
@@ -130,7 +150,10 @@ export function validateContentLimits(config: SiteConfig): { valid: boolean; war
 }
 
 // Security validation - ensure no secrets or sensitive data
-export function validateSecurityConstraints(config: SiteConfig): { valid: boolean; errors: string[] } {
+export function validateSecurityConstraints(config: SiteConfig): {
+	valid: boolean;
+	errors: string[];
+} {
 	const errors: string[] = [];
 	const sensitivePatterns = [
 		/api[_-]?key/i,
@@ -140,14 +163,16 @@ export function validateSecurityConstraints(config: SiteConfig): { valid: boolea
 		/private[_-]?key/i,
 		/[a-f0-9]{32,}/i, // Potential API keys/hashes
 	];
-	
+
 	const configStr = JSON.stringify(config);
 	for (const pattern of sensitivePatterns) {
 		if (pattern.test(configStr)) {
-			errors.push(`Potential sensitive data detected: pattern ${pattern.source}`);
+			errors.push(
+				`Potential sensitive data detected: pattern ${pattern.source}`,
+			);
 		}
 	}
-	
+
 	return {
 		valid: errors.length === 0,
 		errors,

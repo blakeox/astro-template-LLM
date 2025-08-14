@@ -1,10 +1,21 @@
-import { Hono } from "hono";
-import { verifyTurnstile } from "@/lib/turnstile";
 import { securityHeaders } from "@/lib/security/headers";
+import { verifyTurnstile } from "@/lib/turnstile";
+import { Hono } from "hono";
 import { Resend } from "resend";
 
 export interface Env {
-	EDGE_STORE: KVNamespace;
+	EDGE_STORE: {
+		get<T = unknown>(
+			key: string,
+			options?: { type?: "text" | "json" | "arrayBuffer" },
+		): Promise<T | null>;
+		put(
+			key: string,
+			value: string,
+			options?: { expiration?: number; expirationTtl?: number },
+		): Promise<void>;
+		delete(key: string): Promise<void>;
+	};
 	TURNSTILE_SECRET_KEY: string;
 	RESEND_API_KEY: string;
 }
@@ -35,13 +46,23 @@ app.post("/", async (c) => {
 			err: string;
 			details?: string[];
 		};
-		return c.json(
-			{ error: errorResponse.err, details: errorResponse.details || [] },
-			errorResponse.code,
+		return new Response(
+			JSON.stringify({
+				error: errorResponse.err,
+				details: errorResponse.details || [],
+			}),
+			{
+				status: errorResponse.code,
+				headers: { "Content-Type": "application/json", ...securityHeaders() },
+			},
 		);
 	}
 
-	if (!email || !message) return c.json({ error: "invalid input" }, 400);
+	if (!email || !message)
+		return new Response(JSON.stringify({ error: "invalid input" }), {
+			status: 400,
+			headers: { "Content-Type": "application/json", ...securityHeaders() },
+		});
 
 	const resend = new Resend(c.env.RESEND_API_KEY);
 	await resend.emails.send({

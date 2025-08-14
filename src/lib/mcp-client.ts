@@ -1,13 +1,14 @@
-import crypto from "crypto";
+import crypto from "node:crypto";
 import { z } from "zod";
-import type { SiteConfig, Feature } from "../types/site-config.js";
+import type { Feature, SiteConfig } from "../types/site-config.js";
+import { env, isMcpEnabled, mcpTimeoutMs } from "./env.js";
+import { SiteConfigSchema } from "./schemas.js";
 
 // MCP Client Helper Functions
 // This module provides typed functions for MCP integration
 // without embedding secrets or credentials
 
 export interface GenerateSiteConfigOptions {
-	prompt: string;
 	maxFeatures?: number;
 	includeImages?: boolean;
 	format?: "json" | "yaml";
@@ -28,6 +29,50 @@ export interface MCPResponse<T = unknown> {
 		tokens?: number;
 		timestamp?: string;
 	};
+}
+
+type FetchLike = typeof fetch;
+
+async function fetchWithRetry(
+	url: string,
+	init: RequestInit,
+	opts: {
+		retries?: number;
+		backoffMs?: number;
+		fetchImpl?: FetchLike;
+		timeoutMs?: number;
+	} = {},
+) {
+	const {
+		retries = 2,
+		backoffMs = 400,
+		fetchImpl = fetch,
+		timeoutMs = mcpTimeoutMs,
+	} = opts;
+	let lastErr: unknown;
+	for (let attempt = 0; attempt <= retries; attempt++) {
+		const controller = new AbortController();
+		const timeout = setTimeout(() => controller.abort(), timeoutMs);
+		try {
+			const res = await fetchImpl(url, { ...init, signal: controller.signal });
+			if (res.status === 429 || (res.status >= 500 && res.status < 600)) {
+				if (attempt < retries) {
+					// Small exponential backoff between retries
+					await new Promise((r) => setTimeout(r, backoffMs * (attempt + 1)));
+					continue;
+				}
+			}
+			return res;
+		} catch (err) {
+			lastErr = err;
+			if (attempt < retries) {
+				await new Promise((r) => setTimeout(r, backoffMs * (attempt + 1)));
+			}
+		} finally {
+			clearTimeout(timeout);
+		}
+	}
+	throw lastErr instanceof Error ? lastErr : new Error(String(lastErr));
 }
 
 /**
@@ -57,8 +102,52 @@ export async function generateSiteConfig(
 			};
 		}
 
-		// In a real implementation, this would call your MCP server
-		// For now, we'll return a structured response based on the prompt
+		// If MCP is enabled, call the external server; otherwise use local mock
+		if (isMcpEnabled && env.MCP_SERVER_URL) {
+			const url = `${env.MCP_SERVER_URL.replace(/\/$/, "")}/generate`;
+			const body = JSON.stringify({ prompt, options });
+			const headers: Record<string, string> = {
+				"Content-Type": "application/json",
+			};
+			if (env.MCP_API_KEY) headers.Authorization = `Bearer ${env.MCP_API_KEY}`;
+
+			const res = await fetchWithRetry(
+				url,
+				{ method: "POST", headers, body },
+				{ retries: 2, backoffMs: 500, timeoutMs: mcpTimeoutMs },
+			);
+
+			if (!res.ok) {
+				const text = await res.text().catch(() => "");
+				return {
+					success: false,
+					error: `MCP error ${res.status}: ${text || res.statusText}`,
+				};
+			}
+
+			const json = await res.json().catch(() => null);
+			// Accept either wrapped { success, data } or raw SiteConfig
+			const candidate = json?.data ?? json;
+			const parsed = SiteConfigSchema.safeParse(candidate);
+			if (!parsed.success) {
+				return {
+					success: false,
+					error: `Schema validation failed: ${parsed.error.message}`,
+				};
+			}
+
+			return {
+				success: true,
+				data: parsed.data,
+				metadata: {
+					model: json?.metadata?.model ?? "mcp",
+					tokens: json?.metadata?.tokens,
+					timestamp: json?.metadata?.timestamp ?? new Date().toISOString(),
+				},
+			};
+		}
+
+		// Fallback: local structured response based on the prompt
 		const siteConfig: SiteConfig = {
 			name: extractSiteName(prompt) || "Generated Site",
 			description:
@@ -77,13 +166,13 @@ export async function generateSiteConfig(
 		};
 
 		// Add optional pages if detected in prompt
-		if (prompt.toLowerCase().includes("about")) {
+		if (prompt.toLowerCase().indexOf("about") !== -1) {
 			siteConfig.pages.about = {
 				blurb: "We are a professional company dedicated to excellence.",
 			};
 		}
 
-		if (prompt.toLowerCase().includes("contact")) {
+		if (prompt.toLowerCase().indexOf("contact") !== -1) {
 			siteConfig.pages.contact = {
 				emailPlaceholder: "Enter your email address",
 			};
@@ -100,7 +189,7 @@ export async function generateSiteConfig(
 	} catch (error) {
 		return {
 			success: false,
-			error: error.message,
+			error: error instanceof Error ? error.message : String(error),
 		};
 	}
 }
@@ -126,7 +215,8 @@ export async function validateArtifact(
 		}
 
 		// Basic structure validation for SiteConfig
-		if (!artifact.name || !artifact.description || !artifact.pages) {
+		const a: Record<string, unknown> = artifact as Record<string, unknown>;
+		if (!a.name || !a.description || !a.pages) {
 			return {
 				valid: false,
 				errors: ["Missing required fields: name, description, or pages"],
@@ -140,7 +230,7 @@ export async function validateArtifact(
 	} catch (error) {
 		return {
 			valid: false,
-			errors: [error.message],
+			errors: [error instanceof Error ? error.message : String(error)],
 		};
 	}
 }
@@ -174,7 +264,10 @@ export function verifyWebhookSignature(
 			Buffer.from(providedSignature, "hex"),
 		);
 	} catch (error) {
-		console.error("Webhook verification error:", error.message);
+		console.error(
+			"Webhook verification error:",
+			error instanceof Error ? error.message : String(error),
+		);
 		return false;
 	}
 }
@@ -201,13 +294,13 @@ function extractSiteName(prompt: string): string | null {
 
 function extractSiteDescription(prompt: string): string | null {
 	// Extract description from common patterns
-	if (prompt.includes("brochure site")) {
+	if (prompt.indexOf("brochure site") !== -1) {
 		return "Professional brochure website";
 	}
-	if (prompt.includes("portfolio")) {
+	if (prompt.indexOf("portfolio") !== -1) {
 		return "Professional portfolio website";
 	}
-	if (prompt.includes("company")) {
+	if (prompt.indexOf("company") !== -1) {
 		return "Professional company website";
 	}
 
@@ -224,10 +317,10 @@ function extractHeroTitle(prompt: string): string | null {
 }
 
 function extractHeroSubtitle(prompt: string): string | null {
-	if (prompt.toLowerCase().includes("studio")) {
+	if (prompt.toLowerCase().indexOf("studio") !== -1) {
 		return "Creative solutions for your business needs";
 	}
-	if (prompt.toLowerCase().includes("consulting")) {
+	if (prompt.toLowerCase().indexOf("consulting") !== -1) {
 		return "Expert consulting services to help your business succeed";
 	}
 

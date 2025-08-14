@@ -1,9 +1,17 @@
 // Test suite for prompt→LLM→validation flow
 // Tests the complete integration pipeline
 
-import { describe, it, expect, beforeEach } from "vitest";
-import { createLLMRequest, mockLLMGenerate, parseAndValidateLLMResponse } from "../lib/llm-client.js";
-import { validateContentLimits, validateSecurityConstraints, SiteConfigSchema } from "../lib/schemas.js";
+import { beforeEach, describe, expect, it } from "vitest";
+import {
+	createLLMRequest,
+	mockLLMGenerate,
+	parseAndValidateLLMResponse,
+} from "../lib/llm-client.js";
+import {
+	SiteConfigSchema,
+	validateContentLimits,
+	validateSecurityConstraints,
+} from "../lib/schemas.js";
 import type { SiteConfig } from "../types/site-config.js";
 
 describe("LLM Integration Flow", () => {
@@ -36,7 +44,9 @@ describe("LLM Integration Flow", () => {
 
 	describe("LLM Response Generation", () => {
 		it("should generate valid response from business prompt", async () => {
-			const request = createLLMRequest("Create a consulting website for Apex Advisory");
+			const request = createLLMRequest(
+				"Create a consulting website for Apex Advisory",
+			);
 			const response = await mockLLMGenerate(request);
 
 			expect(response.content).toBeTruthy();
@@ -45,8 +55,12 @@ describe("LLM Integration Flow", () => {
 		});
 
 		it("should generate different content for different site types", async () => {
-			const studioRequest = createLLMRequest("Create a design studio site for Creative Works");
-			const consultingRequest = createLLMRequest("Create a consulting site for Business Advisors");
+			const studioRequest = createLLMRequest(
+				"Create a design studio site for Creative Works",
+			);
+			const consultingRequest = createLLMRequest(
+				"Create a consulting site for Business Advisors",
+			);
 
 			const studioResponse = await mockLLMGenerate(studioRequest);
 			const consultingResponse = await mockLLMGenerate(consultingRequest);
@@ -57,7 +71,9 @@ describe("LLM Integration Flow", () => {
 
 	describe("Response Parsing and Validation", () => {
 		it("should parse valid JSON response", async () => {
-			const request = createLLMRequest("Create a portfolio site for Test Studio");
+			const request = createLLMRequest(
+				"Create a portfolio site for Test Studio",
+			);
 			const llmResponse = await mockLLMGenerate(request);
 			const result = parseAndValidateLLMResponse(llmResponse);
 
@@ -73,7 +89,7 @@ describe("LLM Integration Flow", () => {
 			};
 
 			const result = parseAndValidateLLMResponse(malformedResponse);
-			
+
 			expect(result.success).toBe(false);
 			expect(result.parseError).toContain("JSON parse error");
 		});
@@ -89,7 +105,7 @@ describe("LLM Integration Flow", () => {
 			};
 
 			const result = parseAndValidateLLMResponse(invalidConfig);
-			
+
 			expect(result.success).toBe(false);
 			expect(result.validationError).toBeTruthy();
 		});
@@ -124,7 +140,7 @@ Let me know if you need any changes!
 			};
 
 			const result = parseAndValidateLLMResponse(responseWithMarkdown);
-			
+
 			expect(result.success).toBe(true);
 			expect(result.data?.name).toBe("Test Site");
 		});
@@ -162,19 +178,23 @@ Let me know if you need any changes!
 		});
 
 		it("should warn about long hero titles", () => {
-			validConfig.pages.home.hero.title = "This is a very long hero title with many words exceeding recommendations";
-			
+			validConfig.pages.home.hero.title =
+				"This is a very long hero title with many words exceeding recommendations";
+
 			const result = validateContentLimits(validConfig);
 			expect(result.valid).toBe(false);
 			expect(result.warnings[0]).toContain("Hero title has");
 		});
 
 		it("should warn about long feature descriptions", () => {
-			validConfig.pages.home.features[0].description = "This is an extremely long feature description that exceeds the recommended character limit of 120 characters and should trigger a warning in the validation system";
-			
+			validConfig.pages.home.features[0].description =
+				"This is an extremely long feature description that exceeds the recommended character limit of 120 characters and should trigger a warning in the validation system";
+
 			const result = validateContentLimits(validConfig);
 			expect(result.valid).toBe(false);
-			expect(result.warnings.some(w => w.includes("Feature 1 description is"))).toBe(true);
+			expect(
+				result.warnings.some((w) => w.includes("Feature 1 description is")),
+			).toBe(true);
 		});
 
 		it("should detect security issues", () => {
@@ -182,10 +202,10 @@ Let me know if you need any changes!
 				...validConfig,
 				name: "Test Company with API_KEY=secret123",
 			};
-			
+
 			const result = validateSecurityConstraints(unsafeConfig);
 			expect(result.valid).toBe(false);
-			expect(result.errors.some(e => e.includes("pattern"))).toBe(true);
+			expect(result.errors.some((e) => e.includes("pattern"))).toBe(true);
 		});
 
 		it("should pass security validation for clean content", () => {
@@ -198,26 +218,29 @@ Let me know if you need any changes!
 	describe("Full Integration Flow", () => {
 		it("should complete full prompt→LLM→validation cycle", async () => {
 			// Start with a realistic prompt
-			const prompt = "Create a consulting website for Strategic Advisors with 3 features and contact page";
-			
+			const prompt =
+				"Create a consulting website for Strategic Advisors with 3 features and contact page";
+
 			// Step 1: Create LLM request
 			const request = createLLMRequest(prompt);
 			expect(request.prompt).toBe(prompt);
-			
+
 			// Step 2: Generate LLM response
 			const llmResponse = await mockLLMGenerate(request);
 			expect(llmResponse.content).toBeTruthy();
-			
+
 			// Step 3: Parse and validate response
 			const parseResult = parseAndValidateLLMResponse(llmResponse);
 			expect(parseResult.success).toBe(true);
 			expect(parseResult.data).toBeTruthy();
-			
+
 			// Step 4: Additional validation checks
 			if (parseResult.data) {
 				const contentValidation = validateContentLimits(parseResult.data);
-				const securityValidation = validateSecurityConstraints(parseResult.data);
-				
+				const securityValidation = validateSecurityConstraints(
+					parseResult.data,
+				);
+
 				expect(securityValidation.valid).toBe(true);
 				// Content validation may have warnings but should not fail completely
 				expect(parseResult.data.name).toBeTruthy();
@@ -228,14 +251,15 @@ Let me know if you need any changes!
 
 		it("should handle different site types correctly", async () => {
 			const testCases = [
-				{ 
+				{
 					prompt: "Create a design studio site for Creative Vision",
 					expectedName: "Creative Vision",
 					shouldInclude: ["creative", "design"],
 				},
 				{
-					prompt: "Build a restaurant website for Bella Vista with contact info",
-					expectedName: "Bella Vista", 
+					prompt:
+						"Build a restaurant website for Bella Vista with contact info",
+					expectedName: "Bella Vista",
 					shouldInclude: ["restaurant"],
 				},
 			];
@@ -247,7 +271,7 @@ Let me know if you need any changes!
 
 				expect(result.success).toBe(true);
 				expect(result.data?.name).toBe(testCase.expectedName);
-				
+
 				const configStr = JSON.stringify(result.data).toLowerCase();
 				for (const keyword of testCase.shouldInclude) {
 					expect(configStr).toContain(keyword.toLowerCase());
@@ -268,7 +292,7 @@ Let me know if you need any changes!
 				const result = parseAndValidateLLMResponse(llmResponse);
 
 				expect(result.success).toBe(true);
-				
+
 				// Validate against Zod schema directly
 				if (result.data) {
 					const schemaValidation = SiteConfigSchema.safeParse(result.data);
@@ -287,7 +311,7 @@ Let me know if you need any changes!
 			};
 
 			const result = parseAndValidateLLMResponse(invalidResponse);
-			
+
 			expect(result.success).toBe(false);
 			expect(result.parseError).toContain("No valid JSON found");
 		});
@@ -299,7 +323,7 @@ Let me know if you need any changes!
 			};
 
 			const result = parseAndValidateLLMResponse(brokenJsonResponse);
-			
+
 			expect(result.success).toBe(false);
 			expect(result.parseError).toContain("JSON parse error");
 		});
@@ -345,7 +369,7 @@ describe("Schema Synchronization", () => {
 					},
 					features: [
 						{
-							title: "Valid title", 
+							title: "Valid title",
 							description: "a".repeat(121), // Exceeds 120 char limit
 						},
 					],

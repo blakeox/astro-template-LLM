@@ -1,7 +1,7 @@
 import * as fs from "node:fs";
 import * as path from "node:path";
 import { z } from "zod";
-import type { SiteConfig, Feature } from "../src/types/site-config.js";
+import type { Feature, SiteConfig } from "../src/types/site-config.js";
 
 // Zod schema for validation - matches site.config.schema.json
 const SiteConfigSchema = z.object({
@@ -131,7 +131,10 @@ async function validateSiteConfig(
 		);
 		return { valid: false, errors };
 	} catch (error) {
-		return { valid: false, errors: [error.message] };
+		return {
+			valid: false,
+			errors: [error instanceof Error ? error.message : String(error)],
+		};
 	}
 }
 
@@ -436,7 +439,7 @@ async function generatePages(
 			}
 		} catch (error) {
 			result.valid = false;
-			result.errors = [error.message];
+			result.errors = [error instanceof Error ? error.message : String(error)];
 			if (options.format === "json") {
 				console.log(
 					JSON.stringify({ valid: false, errors: result.errors }, null, 2),
@@ -588,7 +591,6 @@ Examples:
 	try {
 		const options = parseArgs(args);
 		const result = await generatePages(options);
-
 		if (options.format === "json") {
 			// JSON output already handled in generatePages, exit quietly
 			process.exit(result.valid === false ? 1 : 0);
@@ -625,7 +627,10 @@ Examples:
 		const exitCode = result.valid === false ? 1 : 0;
 		process.exit(exitCode);
 	} catch (error) {
-		console.error("❌ Error:", error.message);
+		console.error(
+			"❌ Error:",
+			error instanceof Error ? error.message : String(error),
+		);
 		process.exit(1);
 	}
 }

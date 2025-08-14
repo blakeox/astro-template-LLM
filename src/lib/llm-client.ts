@@ -1,8 +1,9 @@
+import type { Feature } from "../types/site-config.js";
 // Minimal LLM Client for JSON Parsing and Schema Validation
 // This module provides a simple interface for LLM integration with proper validation
 
-import { SiteConfigSchema, type SiteConfig } from "./schemas.js";
 import type { MCPResponse, ValidationResult } from "./mcp-client.js";
+import { type SiteConfig, SiteConfigSchema } from "./schemas.js";
 
 export interface LLMClientOptions {
 	model?: string;
@@ -42,7 +43,7 @@ export interface ParsedLLMResponse<T = SiteConfig> {
  */
 export function parseAndValidateLLMResponse(
 	response: LLMResponse,
-	schema = SiteConfigSchema
+	schema = SiteConfigSchema,
 ): ParsedLLMResponse<SiteConfig> {
 	const result: ParsedLLMResponse<SiteConfig> = {
 		success: false,
@@ -62,7 +63,7 @@ export function parseAndValidateLLMResponse(
 		try {
 			parsedData = JSON.parse(jsonContent);
 		} catch (parseError) {
-			result.parseError = `JSON parse error: ${parseError.message}`;
+			result.parseError = `JSON parse error: ${parseError instanceof Error ? parseError.message : String(parseError)}`;
 			return result;
 		}
 
@@ -70,17 +71,16 @@ export function parseAndValidateLLMResponse(
 		const validation = schema.safeParse(parsedData);
 		if (!validation.success) {
 			result.validationError = validation.error.errors
-				.map(err => `${err.path.join('.')}: ${err.message}`)
-				.join('; ');
+				.map((err) => `${err.path.join(".")}: ${err.message}`)
+				.join("; ");
 			return result;
 		}
 
 		result.success = true;
 		result.data = validation.data;
 		return result;
-
 	} catch (error) {
-		result.parseError = `Unexpected error: ${error.message}`;
+		result.parseError = `Unexpected error: ${error instanceof Error ? error.message : String(error)}`;
 		return result;
 	}
 }
@@ -103,7 +103,7 @@ function extractJSONFromContent(content: string): string | null {
 
 	// Try to extract from start/end if it looks like pure JSON
 	const trimmed = content.trim();
-	if (trimmed.startsWith('{') && trimmed.endsWith('}')) {
+	if (trimmed.startsWith("{") && trimmed.endsWith("}")) {
 		return trimmed;
 	}
 
@@ -117,13 +117,13 @@ export function sanitizeLLMContent(content: string): string {
 	// Remove potentially dangerous patterns
 	const sanitized = content
 		// Remove script tags
-		.replace(/<script[^>]*>[\s\S]*?<\/script>/gi, '')
+		.replace(/<script[^>]*>[\s\S]*?<\/script>/gi, "")
 		// Remove on* event handlers
-		.replace(/\s*on\w+\s*=\s*["'][^"']*["']/gi, '')
+		.replace(/\s*on\w+\s*=\s*["'][^"']*["']/gi, "")
 		// Remove javascript: protocols
-		.replace(/javascript:/gi, '')
+		.replace(/javascript:/gi, "")
 		// Remove data: protocols (except safe image formats)
-		.replace(/data:(?!image\/(?:png|jpg|jpeg|gif|svg|webp))[^,]*,/gi, '');
+		.replace(/data:(?!image\/(?:png|jpg|jpeg|gif|svg|webp))[^,]*,/gi, "");
 
 	return sanitized.trim();
 }
@@ -133,7 +133,7 @@ export function sanitizeLLMContent(content: string): string {
  */
 export function createLLMRequest(
 	userPrompt: string,
-	systemPromptPath?: string
+	systemPromptPath?: string,
 ): LLMRequest {
 	// Basic input validation
 	if (!userPrompt?.trim()) {
@@ -178,9 +178,11 @@ Respond with a JSON object that validates against /site.config.schema.json`;
  * Mock LLM client for development/testing
  * In production, this would integrate with actual LLM providers
  */
-export async function mockLLMGenerate(request: LLMRequest): Promise<LLMResponse> {
+export async function mockLLMGenerate(
+	request: LLMRequest,
+): Promise<LLMResponse> {
 	// Simulate API delay
-	await new Promise(resolve => setTimeout(resolve, 100));
+	await new Promise((resolve) => setTimeout(resolve, 100));
 
 	// Generate a mock response based on the prompt
 	const mockSiteConfig = generateMockSiteConfig(request.prompt);
@@ -190,7 +192,7 @@ export async function mockLLMGenerate(request: LLMRequest): Promise<LLMResponse>
 		usage: {
 			promptTokens: request.prompt.length / 4, // Rough token estimation
 			completionTokens: 500,
-			totalTokens: (request.prompt.length / 4) + 500,
+			totalTokens: request.prompt.length / 4 + 500,
 		},
 		model: request.options?.model || "mock-gpt-4",
 		finishReason: "stop",
@@ -254,7 +256,16 @@ function extractSiteName(prompt: string): string | null {
 	return null;
 }
 
-function detectSiteType(prompt: string): string {
+type SiteType =
+	| "studio"
+	| "agency"
+	| "consulting"
+	| "portfolio"
+	| "restaurant"
+	| "company"
+	| "business";
+
+function detectSiteType(prompt: string): SiteType {
 	const lowerPrompt = prompt.toLowerCase();
 	if (lowerPrompt.includes("studio")) return "studio";
 	if (lowerPrompt.includes("agency")) return "agency";
@@ -265,22 +276,29 @@ function detectSiteType(prompt: string): string {
 	return "business";
 }
 
-function generateDescription(siteName: string, siteType: string): string {
-	const descriptions = {
-		studio: "Creative design studio providing innovative solutions for modern brands",
-		agency: "Full-service digital agency delivering results-driven marketing solutions",
-		consulting: "Strategic business consulting firm helping companies achieve growth",
-		portfolio: "Professional portfolio showcasing exceptional work and capabilities",
-		restaurant: "Fine dining restaurant offering exceptional culinary experiences",
+function generateDescription(siteName: string, siteType: SiteType): string {
+	const descriptions: Record<SiteType, string> = {
+		studio:
+			"Creative design studio providing innovative solutions for modern brands",
+		agency:
+			"Full-service digital agency delivering results-driven marketing solutions",
+		consulting:
+			"Strategic business consulting firm helping companies achieve growth",
+		portfolio:
+			"Professional portfolio showcasing exceptional work and capabilities",
+		restaurant:
+			"Fine dining restaurant offering exceptional culinary experiences",
 		company: "Professional company website highlighting services and expertise",
-		business: "Professional business website providing quality services to clients",
+		business:
+			"Professional business website providing quality services to clients",
 	};
-	
-	return descriptions[siteType] || descriptions.business;
+
+	const key: SiteType = descriptions[siteType] ? siteType : "business";
+	return descriptions[key];
 }
 
-function generateHeroTitle(siteName: string, siteType: string): string {
-	const templates = {
+function generateHeroTitle(siteName: string, siteType: SiteType): string {
+	const templates: Record<Exclude<SiteType, "restaurant">, string> = {
 		studio: `Creative Solutions by ${siteName}`,
 		agency: `Digital Growth with ${siteName}`,
 		consulting: `Strategic Success with ${siteName}`,
@@ -288,53 +306,134 @@ function generateHeroTitle(siteName: string, siteType: string): string {
 		company: `Welcome to ${siteName}`,
 		business: `Professional Services by ${siteName}`,
 	};
-	
-	return templates[siteType] || templates.business;
+
+	const key: Exclude<SiteType, "restaurant"> =
+		siteType === "restaurant" ? "business" : siteType;
+	return templates[key];
 }
 
-function generateHeroSubtitle(siteType: string): string {
-	const subtitles = {
-		studio: "We transform your brand vision into stunning digital experiences that captivate and convert.",
-		agency: "Data-driven marketing strategies and creative solutions that drive measurable business growth.",
-		consulting: "Expert consulting services to optimize operations, increase profitability, and achieve sustainable growth.",
-		portfolio: "Showcasing exceptional work and proven results across diverse projects and industries.",
-		company: "Professional services and solutions tailored to meet your specific business needs and goals.",
-		business: "Quality services and expert solutions to help your business succeed in today's competitive market.",
+function generateHeroSubtitle(siteType: SiteType): string {
+	const subtitles: Record<Exclude<SiteType, "restaurant">, string> = {
+		studio:
+			"We transform your brand vision into stunning digital experiences that captivate and convert.",
+		agency:
+			"Data-driven marketing strategies and creative solutions that drive measurable business growth.",
+		consulting:
+			"Expert consulting services to optimize operations, increase profitability, and achieve sustainable growth.",
+		portfolio:
+			"Showcasing exceptional work and proven results across diverse projects and industries.",
+		company:
+			"Professional services and solutions tailored to meet your specific business needs and goals.",
+		business:
+			"Quality services and expert solutions to help your business succeed in today's competitive market.",
 	};
-	
-	return subtitles[siteType] || subtitles.business;
+
+	const key: Exclude<SiteType, "restaurant"> =
+		siteType === "restaurant" ? "business" : siteType;
+	return subtitles[key];
 }
 
-function generateFeatures(siteType: string, count: number): Feature[] {
-	const featuresByType = {
+type FeatureKey = "studio" | "agency" | "consulting" | "business";
+
+function generateFeatures(siteType: SiteType, count: number): Feature[] {
+	// Normalize siteType to supported feature keys
+	const key: FeatureKey =
+		siteType === "studio" || siteType === "agency" || siteType === "consulting"
+			? siteType
+			: "business";
+
+	const featuresByType: Record<
+		FeatureKey,
+		{ icon: string; title: string; description: string }[]
+	> = {
 		studio: [
-			{ icon: "🎨", title: "Brand Design", description: "Complete brand identity packages including logos, typography, and visual guidelines." },
-			{ icon: "💻", title: "Web Development", description: "Modern, responsive websites built with cutting-edge technology and performance optimization." },
-			{ icon: "📱", title: "Digital Strategy", description: "Data-driven marketing strategies that help your brand reach and engage the right audience." },
+			{
+				icon: "🎨",
+				title: "Brand Design",
+				description:
+					"Complete brand identity packages including logos, typography, and visual guidelines.",
+			},
+			{
+				icon: "💻",
+				title: "Web Development",
+				description:
+					"Modern, responsive websites built with cutting-edge technology and performance optimization.",
+			},
+			{
+				icon: "📱",
+				title: "Digital Strategy",
+				description:
+					"Data-driven marketing strategies that help your brand reach and engage the right audience.",
+			},
 		],
 		agency: [
-			{ icon: "📊", title: "Analytics & Insights", description: "Deep data analysis and reporting to guide strategic marketing decisions and optimization." },
-			{ icon: "🚀", title: "Growth Marketing", description: "Scalable marketing systems designed to drive sustainable business growth and customer acquisition." },
-			{ icon: "🎯", title: "Targeted Campaigns", description: "Precision-targeted advertising campaigns that maximize ROI and reach your ideal customers." },
+			{
+				icon: "📊",
+				title: "Analytics & Insights",
+				description:
+					"Deep data analysis and reporting to guide strategic marketing decisions and optimization.",
+			},
+			{
+				icon: "🚀",
+				title: "Growth Marketing",
+				description:
+					"Scalable marketing systems designed to drive sustainable business growth and customer acquisition.",
+			},
+			{
+				icon: "🎯",
+				title: "Targeted Campaigns",
+				description:
+					"Precision-targeted advertising campaigns that maximize ROI and reach your ideal customers.",
+			},
 		],
 		consulting: [
-			{ icon: "📈", title: "Strategic Planning", description: "Comprehensive business strategy development to align operations with long-term growth objectives." },
-			{ icon: "⚡", title: "Process Optimization", description: "Streamline operations and eliminate inefficiencies to boost productivity and reduce costs." },
-			{ icon: "🤝", title: "Change Management", description: "Expert guidance through organizational transformations and business restructuring." },
+			{
+				icon: "📈",
+				title: "Strategic Planning",
+				description:
+					"Comprehensive business strategy development to align operations with long-term growth objectives.",
+			},
+			{
+				icon: "⚡",
+				title: "Process Optimization",
+				description:
+					"Streamline operations and eliminate inefficiencies to boost productivity and reduce costs.",
+			},
+			{
+				icon: "🤝",
+				title: "Change Management",
+				description:
+					"Expert guidance through organizational transformations and business restructuring.",
+			},
 		],
 		business: [
-			{ icon: "🎯", title: "Professional Service", description: "High-quality solutions tailored to your specific business needs and requirements." },
-			{ icon: "👥", title: "Expert Team", description: "Experienced professionals dedicated to delivering excellence in every project." },
-			{ icon: "🛠️", title: "Reliable Support", description: "Ongoing support and maintenance to ensure optimal performance and satisfaction." },
+			{
+				icon: "🎯",
+				title: "Professional Service",
+				description:
+					"High-quality solutions tailored to your specific business needs and requirements.",
+			},
+			{
+				icon: "👥",
+				title: "Expert Team",
+				description:
+					"Experienced professionals dedicated to delivering excellence in every project.",
+			},
+			{
+				icon: "🛠️",
+				title: "Reliable Support",
+				description:
+					"Ongoing support and maintenance to ensure optimal performance and satisfaction.",
+			},
 		],
 	};
-	
-	const features = featuresByType[siteType] || featuresByType.business;
+
+	const features = featuresByType[key];
 	return features.slice(0, count);
 }
 
-function generateAboutBlurb(siteName: string, siteType: string): string {
-	const blurbs = {
+function generateAboutBlurb(siteName: string, siteType: SiteType): string {
+	const blurbs: Record<Exclude<SiteType, "restaurant">, string> = {
 		studio: `${siteName} is a creative design studio specializing in brand identity and digital experiences. We help businesses shine brighter in the digital landscape.`,
 		agency: `${siteName} is a full-service digital agency focused on delivering measurable results. We combine creativity with data-driven strategies to accelerate business growth.`,
 		consulting: `${siteName} provides strategic business consulting services to help companies optimize operations and achieve sustainable growth. Our experienced team delivers proven solutions.`,
@@ -342,8 +441,10 @@ function generateAboutBlurb(siteName: string, siteType: string): string {
 		company: `${siteName} is a professional company dedicated to providing quality services and solutions. We help businesses succeed through expertise and reliability.`,
 		business: `${siteName} delivers professional services and expert solutions to help businesses grow. We are committed to excellence and customer satisfaction.`,
 	};
-	
-	return blurbs[siteType] || blurbs.business;
+
+	const key: Exclude<SiteType, "restaurant"> =
+		siteType === "restaurant" ? "business" : siteType;
+	return blurbs[key];
 }
 
 export default {

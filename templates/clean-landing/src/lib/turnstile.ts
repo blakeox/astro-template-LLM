@@ -19,7 +19,18 @@ export async function verifyTurnstile({
 	ip,
 	salt,
 }: {
-	EDGE_STORE: KVNamespace;
+	EDGE_STORE: {
+		get<T = unknown>(
+			key: string,
+			options?: { type?: "text" | "json" | "arrayBuffer" },
+		): Promise<T | null>;
+		put(
+			key: string,
+			value: string,
+			options?: { expiration?: number; expirationTtl?: number },
+		): Promise<void>;
+		delete(key: string): Promise<void>;
+	};
 	secret: string;
 	token: string;
 	ip?: string;

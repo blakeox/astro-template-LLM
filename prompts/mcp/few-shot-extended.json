@@ -11,7 +11,10 @@
 						"subtitle": "Providing comprehensive healthcare services with a focus on patient wellness, preventive care, and treatment excellence.",
 						"cta": {
 							"primary": { "text": "Our Services", "href": "/services" },
-							"secondary": { "text": "Schedule Appointment", "href": "/contact" }
+							"secondary": {
+								"text": "Schedule Appointment",
+								"href": "/contact"
+							}
 						}
 					},
 					"features": [

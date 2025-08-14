@@ -106,7 +106,10 @@ async function validateSiteConfig(configPath: string): Promise<void> {
 		try {
 			config = JSON.parse(configContent);
 		} catch (parseError) {
-			console.error("❌ Invalid JSON in config file:", parseError.message);
+			console.error(
+				"❌ Invalid JSON in config file:",
+				parseError instanceof Error ? parseError.message : String(parseError),
+			);
 			process.exit(1);
 		}
 
@@ -114,16 +117,26 @@ async function validateSiteConfig(configPath: string): Promise<void> {
 
 		if (result.success) {
 			console.log("✅ Site config is valid!");
-			console.log(`   Name: ${config.name}`);
-			console.log(`   Description: ${config.description}`);
-			console.log(`   Pages: ${Object.keys(config.pages).join(", ")}`);
+			const cfg = config as {
+				name?: string;
+				description?: string;
+				pages?: Record<string, unknown>;
+				images?: unknown[];
+			};
+			console.log(`   Name: ${cfg.name}`);
+			console.log(`   Description: ${cfg.description}`);
+			console.log(`   Pages: ${Object.keys(cfg.pages || {}).join(", ")}`);
 
-			if (config.pages.home.features) {
-				console.log(`   Features: ${config.pages.home.features.length} items`);
+			if (cfg.pages && typeof cfg.pages === "object") {
+				const pages = cfg.pages as Record<string, unknown>;
+				const home = pages.home as { features?: unknown[] } | undefined;
+				if (home && Array.isArray(home.features)) {
+					console.log(`   Features: ${home.features.length} items`);
+				}
 			}
 
-			if (config.images) {
-				console.log(`   Images: ${config.images.length} items`);
+			if (Array.isArray(cfg.images)) {
+				console.log(`   Images: ${cfg.images.length} items`);
 			}
 
 			process.exit(0);
@@ -138,7 +151,10 @@ async function validateSiteConfig(configPath: string): Promise<void> {
 			process.exit(1);
 		}
 	} catch (error) {
-		console.error("❌ Validation error:", error.message);
+		console.error(
+			"❌ Validation error:",
+			error instanceof Error ? error.message : String(error),
+		);
 		process.exit(1);
 	}
 }

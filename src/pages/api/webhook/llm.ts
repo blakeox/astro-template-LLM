@@ -2,9 +2,14 @@
 // POST /api/webhook/llm - Handle async LLM responses and events
 
 import type { APIRoute } from "astro";
-import { verifyWebhookSignature } from "../../../lib/mcp-client.js";
 import { parseAndValidateLLMResponse } from "../../../lib/llm-client.js";
-import { validateContentLimits, validateSecurityConstraints } from "../../../lib/schemas.js";
+import type { LLMResponse } from "../../../lib/llm-client.js";
+import { verifyWebhookSignature } from "../../../lib/mcp-client.js";
+import type { SiteConfig } from "../../../lib/schemas.js";
+import {
+	validateContentLimits,
+	validateSecurityConstraints,
+} from "../../../lib/schemas.js";
 
 export interface WebhookPayload {
 	event: "generation.completed" | "generation.failed" | "validation.requested";
@@ -12,8 +17,8 @@ export interface WebhookPayload {
 	timestamp: string;
 	data?: {
 		prompt?: string;
-		response?: any;
-		config?: any;
+		response?: LLMResponse | unknown;
+		config?: SiteConfig | unknown;
 		errors?: string[];
 	};
 }
@@ -52,23 +57,27 @@ export const POST: APIRoute = async ({ request }) => {
 				{
 					status: 401,
 					headers: { "Content-Type": "application/json" },
-				}
+				},
 			);
 		}
 
 		// Read the payload
 		const payloadText = await request.text();
-		
+
 		// Verify webhook signature if secret is configured
 		if (webhookSecret) {
-			const isValid = verifyWebhookSignature(payloadText, signature, webhookSecret);
+			const isValid = verifyWebhookSignature(
+				payloadText,
+				signature,
+				webhookSecret,
+			);
 			if (!isValid) {
 				return new Response(
 					JSON.stringify({ error: "Invalid webhook signature" }),
 					{
 						status: 401,
 						headers: { "Content-Type": "application/json" },
-					}
+					},
 				);
 			}
 		}
@@ -78,13 +87,10 @@ export const POST: APIRoute = async ({ request }) => {
 		try {
 			payload = JSON.parse(payloadText);
 		} catch (error) {
-			return new Response(
-				JSON.stringify({ error: "Invalid JSON payload" }),
-				{
-					status: 400,
-					headers: { "Content-Type": "application/json" },
-				}
-			);
+			return new Response(JSON.stringify({ error: "Invalid JSON payload" }), {
+				status: 400,
+				headers: { "Content-Type": "application/json" },
+			});
 		}
 
 		// Process webhook based on event type
@@ -99,13 +105,17 @@ export const POST: APIRoute = async ({ request }) => {
 				case "generation.completed": {
 					if (payload.data?.response) {
 						// Parse and validate the LLM response
-						const parseResult = parseAndValidateLLMResponse(payload.data.response);
-						
+						const parseResult = parseAndValidateLLMResponse(
+							payload.data.response as LLMResponse,
+						);
+
 						if (parseResult.success && parseResult.data) {
 							// Additional validation
 							const contentValidation = validateContentLimits(parseResult.data);
-							const securityValidation = validateSecurityConstraints(parseResult.data);
-							
+							const securityValidation = validateSecurityConstraints(
+								parseResult.data,
+							);
+
 							response.validationResult = {
 								valid: contentValidation.valid && securityValidation.valid,
 								warnings: [
@@ -118,20 +128,29 @@ export const POST: APIRoute = async ({ request }) => {
 							response.validationResult = {
 								valid: false,
 								warnings: parseResult.warnings || [],
-								errors: [parseResult.parseError || parseResult.validationError || "Validation failed"],
+								errors: [
+									parseResult.parseError ||
+										parseResult.validationError ||
+										"Validation failed",
+								],
 							};
 						}
 					}
-					
+
 					response.processed = true;
 					break;
 				}
 
 				case "generation.failed": {
 					// Log the failure for monitoring
-					logValidationResult(payload.requestId, "generation.failed", false, 
-						payload.data?.errors || ["Generation failed"], []);
-					
+					logValidationResult(
+						payload.requestId,
+						"generation.failed",
+						false,
+						payload.data?.errors || ["Generation failed"],
+						[],
+					);
+
 					response.processed = true;
 					break;
 				}
@@ -139,16 +158,20 @@ export const POST: APIRoute = async ({ request }) => {
 				case "validation.requested": {
 					if (payload.data?.config) {
 						// Validate provided config
-						const contentValidation = validateContentLimits(payload.data.config);
-						const securityValidation = validateSecurityConstraints(payload.data.config);
-						
+						const contentValidation = validateContentLimits(
+							payload.data.config as SiteConfig,
+						);
+						const securityValidation = validateSecurityConstraints(
+							payload.data.config as SiteConfig,
+						);
+
 						response.validationResult = {
 							valid: contentValidation.valid && securityValidation.valid,
 							warnings: contentValidation.warnings,
 							errors: securityValidation.errors,
 						};
 					}
-					
+
 					response.processed = true;
 					break;
 				}
@@ -164,30 +187,25 @@ export const POST: APIRoute = async ({ request }) => {
 					payload.event,
 					response.validationResult.valid,
 					response.validationResult.errors,
-					response.validationResult.warnings
+					response.validationResult.warnings,
 				);
 			}
-
 		} catch (processingError) {
 			console.error("Webhook processing error:", processingError);
 			response.error = "Failed to process webhook";
 		}
 
 		const statusCode = response.error ? 400 : 200;
-		
-		return new Response(
-			JSON.stringify(response, null, 2),
-			{
-				status: statusCode,
-				headers: {
-					"Content-Type": "application/json",
-				},
-			}
-		);
 
+		return new Response(JSON.stringify(response, null, 2), {
+			status: statusCode,
+			headers: {
+				"Content-Type": "application/json",
+			},
+		});
 	} catch (error) {
 		console.error("Webhook handler error:", error);
-		
+
 		return new Response(
 			JSON.stringify({
 				received: false,
@@ -197,7 +215,7 @@ export const POST: APIRoute = async ({ request }) => {
 			{
 				status: 500,
 				headers: { "Content-Type": "application/json" },
-			}
+			},
 		);
 	}
 };
@@ -210,7 +228,7 @@ function logValidationResult(
 	event: string,
 	valid: boolean,
 	errors: string[],
-	warnings: string[]
+	warnings: string[],
 ): void {
 	const logEntry = {
 		timestamp: new Date().toISOString(),
@@ -220,17 +238,19 @@ function logValidationResult(
 		errors,
 		warnings,
 	};
-	
+
 	// Store in memory for development (in production, use proper logging service)
 	validationLogs.push(logEntry);
-	
+
 	// Keep only last 1000 entries to prevent memory issues
 	if (validationLogs.length > 1000) {
 		validationLogs.splice(0, validationLogs.length - 1000);
 	}
-	
+
 	// Log to console for development
-	console.log(`[${logEntry.timestamp}] ${event} - ${requestId}: ${valid ? 'VALID' : 'INVALID'}`);
+	console.log(
+		`[${logEntry.timestamp}] ${event} - ${requestId}: ${valid ? "VALID" : "INVALID"}`,
+	);
 	if (errors.length > 0) {
 		console.error(`  Errors: ${errors.join(", ")}`);
 	}
@@ -247,23 +267,34 @@ export const GET: APIRoute = async ({ url }) => {
 	const validLimit = Math.min(Math.max(limit, 1), 1000);
 
 	const logs = validationLogs.slice(-validLimit);
-	
+
 	const summary = {
 		total: validationLogs.length,
-		valid: validationLogs.filter(log => log.valid).length,
-		invalid: validationLogs.filter(log => !log.valid).length,
+		valid: validationLogs.filter((log) => log.valid).length,
+		invalid: validationLogs.filter((log) => !log.valid).length,
 		recentLogs: logs,
 		stats: {
-			successRate: validationLogs.length > 0 
-				? (validationLogs.filter(log => log.valid).length / validationLogs.length * 100).toFixed(2) + '%'
-				: 'N/A',
-			totalErrors: validationLogs.reduce((sum, log) => sum + log.errors.length, 0),
-			totalWarnings: validationLogs.reduce((sum, log) => sum + log.warnings.length, 0),
+			successRate:
+				validationLogs.length > 0
+					? `${(
+							(validationLogs.filter((log) => log.valid).length /
+								validationLogs.length) *
+								100
+						).toFixed(2)}%`
+					: "N/A",
+			totalErrors: validationLogs.reduce(
+				(sum, log) => sum + log.errors.length,
+				0,
+			),
+			totalWarnings: validationLogs.reduce(
+				(sum, log) => sum + log.warnings.length,
+				0,
+			),
 		},
 	};
 
 	return new Response(JSON.stringify(summary, null, 2), {
-		headers: { 
+		headers: {
 			"Content-Type": "application/json",
 			"Cache-Control": "no-cache",
 		},

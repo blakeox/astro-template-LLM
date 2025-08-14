@@ -20,7 +20,11 @@ interface MetricsData {
 	};
 	errors: Array<{
 		timestamp: string;
-		type: "llm_generation" | "json_parse" | "schema_validation" | "security_violation";
+		type:
+			| "llm_generation"
+			| "json_parse"
+			| "schema_validation"
+			| "security_violation";
 		error: string;
 		promptLength?: number;
 	}>;
@@ -50,7 +54,7 @@ export const GET: APIRoute = async ({ url }) => {
 	switch (format) {
 		case "detailed": {
 			return new Response(JSON.stringify(metrics, null, 2), {
-				headers: { 
+				headers: {
 					"Content-Type": "application/json",
 					"Cache-Control": "no-cache",
 				},
@@ -59,15 +63,22 @@ export const GET: APIRoute = async ({ url }) => {
 
 		case "errors": {
 			const recentErrors = metrics.errors.slice(-limit);
-			return new Response(JSON.stringify({
-				total: metrics.errors.length,
-				errors: recentErrors,
-			}, null, 2), {
-				headers: { 
-					"Content-Type": "application/json",
-					"Cache-Control": "no-cache",
+			return new Response(
+				JSON.stringify(
+					{
+						total: metrics.errors.length,
+						errors: recentErrors,
+					},
+					null,
+					2,
+				),
+				{
+					headers: {
+						"Content-Type": "application/json",
+						"Cache-Control": "no-cache",
+					},
 				},
-			});
+			);
 		}
 
 		case "health": {
@@ -75,27 +86,49 @@ export const GET: APIRoute = async ({ url }) => {
 				status: "healthy",
 				checks: {
 					llm: {
-						status: metrics.llm.failedRequests / Math.max(metrics.llm.totalRequests, 1) < 0.1 ? "healthy" : "degraded",
-						successRate: metrics.llm.totalRequests > 0 
-							? (metrics.llm.successfulRequests / metrics.llm.totalRequests * 100).toFixed(2) + '%'
-							: 'N/A',
+						status:
+							metrics.llm.failedRequests /
+								Math.max(metrics.llm.totalRequests, 1) <
+							0.1
+								? "healthy"
+								: "degraded",
+						successRate:
+							metrics.llm.totalRequests > 0
+								? `${(
+										(metrics.llm.successfulRequests /
+											metrics.llm.totalRequests) *
+											100
+									).toFixed(2)}%`
+								: "N/A",
 					},
 					validation: {
-						status: metrics.validation.securityValidationFailures === 0 ? "healthy" : "warning",
-						schemaFailureRate: metrics.validation.totalValidations > 0
-							? (metrics.validation.schemaValidationFailures / metrics.validation.totalValidations * 100).toFixed(2) + '%'
-							: 'N/A',
+						status:
+							metrics.validation.securityValidationFailures === 0
+								? "healthy"
+								: "warning",
+						schemaFailureRate:
+							metrics.validation.totalValidations > 0
+								? `${(
+										(metrics.validation.schemaValidationFailures /
+											metrics.validation.totalValidations) *
+											100
+									).toFixed(2)}%`
+								: "N/A",
 					},
 				},
 				uptime: "N/A", // Would track actual uptime in production
 				timestamp: new Date().toISOString(),
 			};
 
-			const statusCode = health.checks.llm.status === "healthy" && health.checks.validation.status === "healthy" ? 200 : 503;
+			const statusCode =
+				health.checks.llm.status === "healthy" &&
+				health.checks.validation.status === "healthy"
+					? 200
+					: 503;
 
 			return new Response(JSON.stringify(health, null, 2), {
 				status: statusCode,
-				headers: { 
+				headers: {
 					"Content-Type": "application/json",
 					"Cache-Control": "no-cache",
 				},
@@ -107,18 +140,25 @@ export const GET: APIRoute = async ({ url }) => {
 			const summary = {
 				overview: {
 					totalLLMRequests: metrics.llm.totalRequests,
-					llmSuccessRate: metrics.llm.totalRequests > 0 
-						? (metrics.llm.successfulRequests / metrics.llm.totalRequests * 100).toFixed(2) + '%'
-						: 'N/A',
+					llmSuccessRate:
+						metrics.llm.totalRequests > 0
+							? `${(
+									(metrics.llm.successfulRequests / metrics.llm.totalRequests) *
+										100
+								).toFixed(2)}%`
+							: "N/A",
 					totalValidations: metrics.validation.totalValidations,
 					recentErrors: metrics.errors.length,
 				},
 				performance: {
-					averageResponseTime: metrics.llm.averageResponseTime + 'ms',
+					averageResponseTime: `${metrics.llm.averageResponseTime}ms`,
 					totalTokensUsed: metrics.llm.totalTokensUsed,
-					averageTokensPerRequest: metrics.llm.totalRequests > 0 
-						? Math.round(metrics.llm.totalTokensUsed / metrics.llm.totalRequests)
-						: 0,
+					averageTokensPerRequest:
+						metrics.llm.totalRequests > 0
+							? Math.round(
+									metrics.llm.totalTokensUsed / metrics.llm.totalRequests,
+								)
+							: 0,
 				},
 				quality: {
 					schemaValidationFailures: metrics.validation.schemaValidationFailures,
@@ -133,7 +173,7 @@ export const GET: APIRoute = async ({ url }) => {
 			};
 
 			return new Response(JSON.stringify(summary, null, 2), {
-				headers: { 
+				headers: {
 					"Content-Type": "application/json",
 					"Cache-Control": "no-cache",
 				},
@@ -143,9 +183,13 @@ export const GET: APIRoute = async ({ url }) => {
 };
 
 // Utility functions for updating metrics (called from other API endpoints)
-export function recordLLMRequest(success: boolean, responseTime: number, tokenUsage?: any): void {
+export function recordLLMRequest(
+	success: boolean,
+	responseTime: number,
+	tokenUsage?: { totalTokens?: number } | null,
+): void {
 	metrics.llm.totalRequests++;
-	
+
 	if (success) {
 		metrics.llm.successfulRequests++;
 	} else {
@@ -153,8 +197,12 @@ export function recordLLMRequest(success: boolean, responseTime: number, tokenUs
 	}
 
 	// Update average response time
-	const totalResponseTime = metrics.llm.averageResponseTime * (metrics.llm.totalRequests - 1) + responseTime;
-	metrics.llm.averageResponseTime = Math.round(totalResponseTime / metrics.llm.totalRequests);
+	const totalResponseTime =
+		metrics.llm.averageResponseTime * (metrics.llm.totalRequests - 1) +
+		responseTime;
+	metrics.llm.averageResponseTime = Math.round(
+		totalResponseTime / metrics.llm.totalRequests,
+	);
 
 	if (tokenUsage?.totalTokens) {
 		metrics.llm.totalTokensUsed += tokenUsage.totalTokens;
@@ -164,7 +212,7 @@ export function recordLLMRequest(success: boolean, responseTime: number, tokenUs
 export function recordValidationResult(
 	type: "schema" | "content" | "security",
 	success: boolean,
-	warningCount = 0
+	warningCount = 0,
 ): void {
 	metrics.validation.totalValidations++;
 
@@ -173,7 +221,8 @@ export function recordValidationResult(
 			if (!success) metrics.validation.schemaValidationFailures++;
 			break;
 		case "content":
-			if (warningCount > 0) metrics.validation.contentValidationWarnings += warningCount;
+			if (warningCount > 0)
+				metrics.validation.contentValidationWarnings += warningCount;
 			break;
 		case "security":
 			if (!success) metrics.validation.securityValidationFailures++;
@@ -182,9 +231,13 @@ export function recordValidationResult(
 }
 
 export function recordError(
-	type: "llm_generation" | "json_parse" | "schema_validation" | "security_violation",
+	type:
+		| "llm_generation"
+		| "json_parse"
+		| "schema_validation"
+		| "security_violation",
 	error: string,
-	promptLength?: number
+	promptLength?: number,
 ): void {
 	metrics.errors.push({
 		timestamp: new Date().toISOString(),

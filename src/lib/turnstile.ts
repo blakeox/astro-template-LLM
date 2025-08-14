@@ -12,6 +12,19 @@ const sha256 = async (s: string) =>
 const replayKey = (h: string) => `ts:seen:${h}`;
 const failKey = (h: string) => `ts:fail:${h}`;
 
+type KV = {
+	get<T = unknown>(
+		key: string,
+		options?: { type?: "text" | "json" | "arrayBuffer" },
+	): Promise<T | null>;
+	put(
+		key: string,
+		value: string,
+		options?: { expiration?: number; expirationTtl?: number },
+	): Promise<void>;
+	delete(key: string): Promise<void>;
+};
+
 export async function verifyTurnstile({
 	EDGE_STORE,
 	secret,
@@ -19,7 +32,7 @@ export async function verifyTurnstile({
 	ip,
 	salt,
 }: {
-	EDGE_STORE: KVNamespace;
+	EDGE_STORE: KV;
 	secret: string;
 	token: string;
 	ip?: string;

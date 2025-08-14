@@ -77,32 +77,29 @@ export interface SiteConfig {
 
 // Type guards for validation
 export function isValidSiteConfig(obj: unknown): obj is SiteConfig {
-	return (
-		obj &&
-		typeof obj === "object" &&
-		typeof obj.name === "string" &&
-		typeof obj.description === "string" &&
-		obj.pages &&
-		typeof obj.pages === "object" &&
-		obj.pages.home &&
-		typeof obj.pages.home === "object"
-	);
+	if (!obj || typeof obj !== "object") return false;
+	const anyObj = obj as Record<string, unknown>;
+	if (typeof anyObj.name !== "string") return false;
+	if (typeof anyObj.description !== "string") return false;
+	if (!anyObj.pages || typeof anyObj.pages !== "object") return false;
+	const pages = anyObj.pages as Record<string, unknown>;
+	const home = pages.home as unknown;
+	if (!home || typeof home !== "object") return false;
+	return true;
 }
 
 export function isValidHero(obj: unknown): obj is Hero {
+	if (!obj || typeof obj !== "object") return false;
+	const anyObj = obj as Record<string, unknown>;
 	return (
-		obj &&
-		typeof obj === "object" &&
-		typeof obj.title === "string" &&
-		typeof obj.subtitle === "string"
+		typeof anyObj.title === "string" && typeof anyObj.subtitle === "string"
 	);
 }
 
 export function isValidFeature(obj: unknown): obj is Feature {
+	if (!obj || typeof obj !== "object") return false;
+	const anyObj = obj as Record<string, unknown>;
 	return (
-		obj &&
-		typeof obj === "object" &&
-		typeof obj.title === "string" &&
-		typeof obj.description === "string"
+		typeof anyObj.title === "string" && typeof anyObj.description === "string"
 	);
 }
