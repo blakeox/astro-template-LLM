@@ -13,6 +13,8 @@
 		"e2e": "playwright test",
 		"gen": "tsx scripts/generate.ts",
 		"mcp:gen": "tsx scripts/generate.ts",
+		"mcp:cli": "tsx scripts/mcp-cli.ts",
+		"mcp:demo": "tsx scripts/demo-mcp-enhancements.ts",
 		"ci": "pnpm lint && pnpm build",
 		"template:validate": "node tools/template-manager.cjs validate",
 		"template:update-registry": "node tools/template-manager.cjs update-registry",

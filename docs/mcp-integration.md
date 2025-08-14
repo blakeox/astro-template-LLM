@@ -1,6 +1,30 @@
 # MCP Integration Documentation
 
-This document describes the Model Context Protocol (MCP) integration for the astro-template-LLM repository, enabling schema-first, AI-driven website generation with validation and automation.
+This document describes the **enhanced** Model Context Protocol (MCP) integration for the astro-template-LLM repository, enabling schema-first, AI-driven website generation with advanced validation, intelligent prompt parsing, and robust automation.
+
+## 🚀 Recent Enhancements
+
+### Enhanced Business Type Detection
+- **Sophisticated Business Classification**: Automatically detects 12+ business types (legal, restaurant, consulting, design studio, agency, medical, etc.)
+- **Contextual Content Generation**: Features, descriptions, and hero content tailored to specific business types
+- **Intelligent Name Extraction**: Advanced regex patterns for extracting company names from natural language
+
+### Improved MCP Client
+- **Real MCP Server Integration**: `generateSiteConfigFromMCP()` function with HTTP client, retry logic, and timeout handling
+- **Enhanced Validation**: Full Zod schema validation with detailed error reporting
+- **Environment Configuration**: Automatic configuration loading from environment variables
+- **Graceful Fallbacks**: Local generation when MCP server is unavailable
+
+### Dynamic Component System
+- **Props-Based Components**: Hero and Features components now accept dynamic props
+- **Updated Component Manifest**: Machine-readable documentation with proper prop specifications
+- **Schema Validation**: All generated content validates against strict JSON schema
+
+### Developer Experience
+- **Enhanced CLI**: New `pnpm mcp:cli` command with comprehensive options
+- **Comprehensive Testing**: Full test suite covering MCP functionality
+- **Better Error Handling**: Type-safe error handling throughout the codebase
+- **Webhook Support**: API endpoint for real-time MCP server integration
 
 ## Overview
 
@@ -38,14 +62,33 @@ Components are defined in `components/manifest.json`:
 # Install dependencies
 pnpm install
 
+# Set up environment (copy and configure)
+cp .env.example .env
+
 # Verify current setup
 pnpm build
 pnpm mcp:gen --help
+pnpm mcp:cli --help
+
+# Run enhancement demo
+pnpm exec tsx scripts/demo-mcp-enhancements.ts
 ```
 
 ### Running MCP-Driven Sessions
 
-#### Basic Generation
+#### Enhanced Generation with New CLI
+```bash
+# Generate with comprehensive options
+pnpm mcp:cli --prompt "Create a law firm website for Smith & Associates" --validate --verbose
+
+# Full workflow: prompt -> config -> pages  
+pnpm mcp:cli --prompt "Portfolio for Creative Studio" --generate-pages --verbose --dry
+
+# Generate and save custom output
+pnpm mcp:cli --prompt "Restaurant site for Bella's Cafe" --output custom-config.json --validate
+```
+
+#### Basic Generation (Legacy)
 ```bash
 # Generate from prompt with dry run
 pnpm mcp:gen --dry --prompt "Create a portfolio site for Design Co"

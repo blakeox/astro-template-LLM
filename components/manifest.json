@@ -90,29 +90,84 @@
 			"name": "Hero",
 			"path": "src/components/sections/Hero.astro",
 			"description": "Hero section with title, subtitle and CTA buttons",
-			"props": {},
+			"props": {
+				"hero": {
+					"type": "object",
+					"required": false,
+					"description": "Hero configuration object with title, subtitle, and CTA buttons",
+					"properties": {
+						"title": { "type": "string", "maxLength": 60, "description": "Hero title text" },
+						"subtitle": { "type": "string", "maxLength": 300, "description": "Hero subtitle text" },
+						"cta": {
+							"type": "object",
+							"properties": {
+								"primary": { "type": "object", "properties": { "text": "string", "href": "string" } },
+								"secondary": { "type": "object", "properties": { "text": "string", "href": "string" } }
+							}
+						}
+					}
+				},
+				"siteName": {
+					"type": "string",
+					"required": false,
+					"description": "Site name for highlighting in title"
+				}
+			},
 			"slots": {},
 			"examples": [
 				{
 					"title": "Basic hero section",
 					"code": "<Hero />"
+				},
+				{
+					"title": "Hero with custom content",
+					"code": "<Hero hero={{ title: \"Welcome to Acme Corp\", subtitle: \"We deliver excellence\" }} />"
 				}
 			],
-			"notes": "Currently uses hardcoded content, needs to be modified to accept props for MCP usage"
+			"notes": "Now accepts props for dynamic content generation from MCP"
 		},
 		{
 			"name": "Features",
 			"path": "src/components/sections/Features.astro",
 			"description": "Features showcase section with icon, title, and description",
-			"props": {},
+			"props": {
+				"features": {
+					"type": "array",
+					"required": false,
+					"description": "Array of feature objects",
+					"items": {
+						"type": "object",
+						"properties": {
+							"icon": { "type": "string", "maxLength": 10, "description": "Feature icon (emoji)" },
+							"title": { "type": "string", "maxLength": 50, "description": "Feature title" },
+							"description": { "type": "string", "maxLength": 120, "description": "Feature description" }
+						}
+					}
+				},
+				"title": {
+					"type": "string",
+					"required": false,
+					"default": "Why Choose Us",
+					"description": "Section title"
+				},
+				"subtitle": {
+					"type": "string",
+					"required": false,
+					"description": "Section subtitle/description"
+				}
+			},
 			"slots": {},
 			"examples": [
 				{
-					"title": "Features section",
+					"title": "Basic features section",
 					"code": "<Features />"
+				},
+				{
+					"title": "Custom features",
+					"code": "<Features features={customFeatures} title=\"Our Strengths\" />"
 				}
 			],
-			"notes": "Currently uses hardcoded features array, needs to be modified to accept props for MCP usage"
+			"notes": "Now accepts props for dynamic content generation from MCP"
 		},
 		{
 			"name": "CTA",

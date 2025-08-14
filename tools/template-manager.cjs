@@ -192,7 +192,7 @@ const templateId = process.argv[3];
 async function main() {
 	try {
 		switch (command) {
-			case "validate":
+			case "validate": {
 				if (!templateId) {
 					console.error(
 						"Usage: node template-manager.js validate <template-id>",
@@ -204,10 +204,13 @@ async function main() {
 					console.log(`✅ Template ${templateId} is valid`);
 				} else {
 					console.error(`❌ Template ${templateId} has errors:`);
-					errors.forEach((error) => console.error(`  - ${error}`));
+					for (const error of errors) {
+						console.error(`  - ${error}`);
+					}
 					process.exit(1);
 				}
 				break;
+			}
 
 			case "update-registry":
 				await updateRegistry();

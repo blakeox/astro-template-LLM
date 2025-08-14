@@ -1,24 +1,58 @@
 ---
 import Button from "@/components/ui/Button.astro";
+import type { Hero as HeroType } from "@/types/site-config";
 
-const siteName = import.meta.env.PUBLIC_SITE_NAME || "Example Co.";
+interface Props {
+	hero?: HeroType;
+	siteName?: string;
+}
+
+const { 
+	hero = {
+		title: `Welcome to ${import.meta.env.PUBLIC_SITE_NAME || "Example Co."}`,
+		subtitle: "We provide professional services and solutions to help your business grow and succeed in today's competitive market.",
+		cta: {
+			primary: { text: "Our Services", href: "/services" },
+			secondary: { text: "Get in Touch", href: "/contact" }
+		}
+	},
+	siteName = import.meta.env.PUBLIC_SITE_NAME || "Example Co."
+} = Astro.props;
+
+// Extract site name from hero title for highlighting
+const highlightedSiteName = hero.title.includes(siteName) ? siteName : null;
+const titleParts = highlightedSiteName 
+	? hero.title.split(highlightedSiteName)
+	: [hero.title];
 ---
 
 <section class="bg-gradient-to-b from-blue-50 to-white py-24">
   <div class="container mx-auto px-6 text-center">
     <h1 class="text-4xl md:text-6xl font-bold text-gray-900 mb-6">
-      Welcome to <span class="text-primary">{siteName}</span>
+      {highlightedSiteName ? (
+        <>
+          {titleParts[0]}<span class="text-primary">{highlightedSiteName}</span>{titleParts[1] || ""}
+        </>
+      ) : (
+        hero.title
+      )}
     </h1>
     <p class="text-xl text-gray-600 mb-8 max-w-2xl mx-auto">
-      We provide professional services and solutions to help your business grow and succeed in today's competitive market.
+      {hero.subtitle}
     </p>
-    <div class="flex flex-col sm:flex-row gap-4 justify-center">
-      <Button href="/services" size="lg">
-        Our Services
-      </Button>
-      <Button href="/contact" variant="outline" size="lg">
-        Get in Touch
-      </Button>
-    </div>
+    {hero.cta && (
+      <div class="flex flex-col sm:flex-row gap-4 justify-center">
+        {hero.cta.primary && (
+          <Button href={hero.cta.primary.href} size="lg">
+            {hero.cta.primary.text}
+          </Button>
+        )}
+        {hero.cta.secondary && (
+          <Button href={hero.cta.secondary.href} variant="outline" size="lg">
+            {hero.cta.secondary.text}
+          </Button>
+        )}
+      </div>
+    )}
   </div>
 </section>

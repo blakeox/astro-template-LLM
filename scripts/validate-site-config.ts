@@ -101,7 +101,7 @@ async function validateSiteConfig(configPath: string): Promise<void> {
 		console.log("🔍 Validating site config:", configPath);
 
 		const configContent = fs.readFileSync(configPath, "utf-8");
-		let config: any;
+		let config: unknown;
 
 		try {
 			config = JSON.parse(configContent);
@@ -138,7 +138,7 @@ async function validateSiteConfig(configPath: string): Promise<void> {
 			process.exit(1);
 		}
 	} catch (error) {
-		console.error("❌ Validation error:", error.message);
+		console.error("❌ Validation error:", (error as Error).message);
 		process.exit(1);
 	}
 }

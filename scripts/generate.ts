@@ -1,7 +1,9 @@
 import * as fs from "node:fs";
 import * as path from "node:path";
 import { z } from "zod";
-import type { SiteConfig } from "../src/types/site-config.js";
+import type { SiteConfig, Feature } from "../src/types/site-config.js";
+import { generateSiteConfigFromMCP, generateSiteConfig } from "../src/lib/mcp-client.js";
+import { getMCPConfig } from "../src/lib/mcp-config.js";
 
 // Zod schema for validation - matches site.config.schema.json
 const SiteConfigSchema = z.object({
@@ -125,14 +127,13 @@ async function validateSiteConfig(
 
 		if (result.success) {
 			return { valid: true, config: result.data as SiteConfig };
-		} else {
-			const errors = result.error.errors.map(
-				(err) => `${err.path.join(".")}: ${err.message}`,
-			);
-			return { valid: false, errors };
 		}
+		const errors = result.error.errors.map(
+			(err) => `${err.path.join(".")}: ${err.message}`,
+		);
+		return { valid: false, errors };
 	} catch (error) {
-		return { valid: false, errors: [error.message] };
+		return { valid: false, errors: [(error as Error).message] };
 	}
 }
 
@@ -215,10 +216,10 @@ function extractSiteDescription(prompt: string, siteName: string): string {
 		return `Strategic consulting services and business solutions from ${siteName}`;
 	}
 	if (prompt.toLowerCase().includes("studio")) {
-		return `Creative design studio providing innovative solutions for modern brands`;
+		return "Creative design studio providing innovative solutions for modern brands";
 	}
 	if (prompt.toLowerCase().includes("agency")) {
-		return `Professional digital agency delivering results-driven solutions`;
+		return "Professional digital agency delivering results-driven solutions";
 	}
 
 	return `Professional services and solutions from ${siteName}`;
@@ -243,22 +244,22 @@ function generateHeroTitle(siteName: string, prompt: string): string {
 
 function generateHeroSubtitle(siteName: string, prompt: string): string {
 	if (prompt.toLowerCase().includes("studio")) {
-		return `We transform your vision into stunning digital experiences that captivate and convert.`;
+		return "We transform your vision into stunning digital experiences that captivate and convert.";
 	}
 	if (prompt.toLowerCase().includes("consulting")) {
-		return `Strategic consulting services to optimize operations, increase profitability, and drive growth.`;
+		return "Strategic consulting services to optimize operations, increase profitability, and drive growth.";
 	}
 	if (prompt.toLowerCase().includes("portfolio")) {
-		return `Showcasing innovative projects and creative solutions that make an impact.`;
+		return "Showcasing innovative projects and creative solutions that make an impact.";
 	}
 	if (prompt.toLowerCase().includes("agency")) {
-		return `Professional digital services to help your business succeed in the modern marketplace.`;
+		return "Professional digital services to help your business succeed in the modern marketplace.";
 	}
 
-	return `Professional services and solutions to help your business grow and succeed.`;
+	return "Professional services and solutions to help your business grow and succeed.";
 }
 
-function generateFeatures(prompt: string): any[] {
+function generateFeatures(prompt: string): Feature[] {
 	if (
 		prompt.toLowerCase().includes("studio") ||
 		prompt.toLowerCase().includes("design")
@@ -404,27 +405,45 @@ async function generatePages(
 	// Handle prompt generation
 	if (options.prompt) {
 		try {
-			config = await generateFromPrompt(options.prompt);
-			result.config = config;
+			// Use enhanced MCP client with environment configuration
+			const { serverConfig, validation } = getMCPConfig();
+			
+			// Log configuration warnings
+			if (validation.warnings.length > 0) {
+				for (const warning of validation.warnings) {
+					console.warn(`⚠️  ${warning}`);
+				}
+			}
 
-			// Validate generated config
-			const validationResult = SiteConfigSchema.safeParse(config);
+			// Use MCP server if configured, otherwise fall back to local generation
+			const mcpResponse = serverConfig
+				? await generateSiteConfigFromMCP(options.prompt, {
+						maxFeatures: 3,
+						includeImages: false,
+						format: options.format || "json",
+					}, serverConfig)
+				: await generateSiteConfig(options.prompt, {
+						maxFeatures: 3,
+						includeImages: false,
+						format: options.format || "json",
+					});
 
-			if (!validationResult.success) {
+			if (!mcpResponse.success) {
 				result.valid = false;
-				result.errors = validationResult.error.errors.map(
-					(err) => `${err.path.join(".")}: ${err.message}`,
-				);
-
+				result.errors = [mcpResponse.error || "Failed to generate config"];
+				
 				if (options.format === "json") {
 					console.log(
 						JSON.stringify({ valid: false, errors: result.errors }, null, 2),
 					);
 					return result;
 				}
-			} else {
-				result.valid = true;
+				throw new Error(mcpResponse.error || "Generation failed");
 			}
+
+			config = mcpResponse.data as SiteConfig;
+			result.config = config;
+			result.valid = true;
 
 			// If format is json, output the config and return early
 			if (options.format === "json") {
@@ -437,7 +456,7 @@ async function generatePages(
 			}
 		} catch (error) {
 			result.valid = false;
-			result.errors = [error.message];
+			result.errors = [(error as Error).message];
 			if (options.format === "json") {
 				console.log(
 					JSON.stringify({ valid: false, errors: result.errors }, null, 2),
@@ -460,7 +479,7 @@ async function generatePages(
 			}
 			throw new Error(`Invalid site config: ${validation.errors?.join(", ")}`);
 		}
-		config = validation.config!;
+		config = validation.config as SiteConfig;
 		result.valid = true;
 	}
 
@@ -626,7 +645,7 @@ Examples:
 		const exitCode = result.valid === false ? 1 : 0;
 		process.exit(exitCode);
 	} catch (error) {
-		console.error("❌ Error:", error.message);
+		console.error("❌ Error:", (error as Error).message);
 		process.exit(1);
 	}
 }

@@ -76,7 +76,7 @@ export interface SiteConfig {
 }
 
 // Type guards for validation
-export function isValidSiteConfig(obj: any): obj is SiteConfig {
+export function isValidSiteConfig(obj: unknown): obj is SiteConfig {
 	return (
 		obj &&
 		typeof obj === "object" &&
@@ -89,7 +89,7 @@ export function isValidSiteConfig(obj: any): obj is SiteConfig {
 	);
 }
 
-export function isValidHero(obj: any): obj is Hero {
+export function isValidHero(obj: unknown): obj is Hero {
 	return (
 		obj &&
 		typeof obj === "object" &&
@@ -98,7 +98,7 @@ export function isValidHero(obj: any): obj is Hero {
 	);
 }
 
-export function isValidFeature(obj: any): obj is Feature {
+export function isValidFeature(obj: unknown): obj is Feature {
 	return (
 		obj &&
 		typeof obj === "object" &&
