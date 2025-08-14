@@ -1,6 +1,7 @@
 :root {
-  --color-primary: 199 89% 48%;
-  --radius: 16px;
-  --container: 72rem;
-  --font-sans: ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, Arial;
+	--color-primary: 199 89% 48%;
+	--radius: 16px;
+	--container: 72rem;
+	--font-sans: ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto,
+		Arial;
 }

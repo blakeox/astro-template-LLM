@@ -1,160 +1,160 @@
 {
-  "$schema": "http://json-schema.org/draft-07/schema#",
-  "title": "Component Manifest",
-  "description": "Machine-readable manifest of available Astro components",
-  "version": "1.0.0",
-  "components": [
-    {
-      "name": "Button",
-      "path": "src/components/ui/Button.astro",
-      "description": "Reusable button component with multiple variants and sizes",
-      "props": {
-        "variant": {
-          "type": "string",
-          "required": false,
-          "default": "primary",
-          "options": ["primary", "secondary", "outline"],
-          "description": "Visual style variant"
-        },
-        "size": {
-          "type": "string", 
-          "required": false,
-          "default": "md",
-          "options": ["sm", "md", "lg"],
-          "description": "Button size"
-        },
-        "href": {
-          "type": "string",
-          "required": false,
-          "description": "Link destination (renders as anchor if provided)"
-        },
-        "type": {
-          "type": "string",
-          "required": false,
-          "default": "button",
-          "options": ["button", "submit", "reset"],
-          "description": "Button type attribute"
-        },
-        "class": {
-          "type": "string",
-          "required": false,
-          "description": "Additional CSS classes"
-        }
-      },
-      "slots": {
-        "default": {
-          "required": true,
-          "description": "Button content/text"
-        }
-      },
-      "examples": [
-        {
-          "title": "Primary button",
-          "code": "<Button>Click me</Button>"
-        },
-        {
-          "title": "Link button with variant",
-          "code": "<Button href=\"/contact\" variant=\"outline\" size=\"lg\">Get in Touch</Button>"
-        }
-      ]
-    },
-    {
-      "name": "Nav",
-      "path": "src/components/Nav.astro",
-      "description": "Main site navigation with mobile support",
-      "props": {},
-      "slots": {},
-      "examples": [
-        {
-          "title": "Basic navigation",
-          "code": "<Nav />"
-        }
-      ],
-      "notes": "Uses PUBLIC_SITE_NAME environment variable, automatically highlights current page"
-    },
-    {
-      "name": "Footer",
-      "path": "src/components/Footer.astro", 
-      "description": "Site footer with links and contact info",
-      "props": {},
-      "slots": {},
-      "examples": [
-        {
-          "title": "Basic footer",
-          "code": "<Footer />"
-        }
-      ],
-      "notes": "Uses PUBLIC_SITE_NAME environment variable, displays current year"
-    },
-    {
-      "name": "Hero",
-      "path": "src/components/sections/Hero.astro",
-      "description": "Hero section with title, subtitle and CTA buttons",
-      "props": {},
-      "slots": {},
-      "examples": [
-        {
-          "title": "Basic hero section",
-          "code": "<Hero />"
-        }
-      ],
-      "notes": "Currently uses hardcoded content, needs to be modified to accept props for MCP usage"
-    },
-    {
-      "name": "Features",
-      "path": "src/components/sections/Features.astro",
-      "description": "Features showcase section with icon, title, and description",
-      "props": {},
-      "slots": {},
-      "examples": [
-        {
-          "title": "Features section", 
-          "code": "<Features />"
-        }
-      ],
-      "notes": "Currently uses hardcoded features array, needs to be modified to accept props for MCP usage"
-    },
-    {
-      "name": "CTA",
-      "path": "src/components/sections/CTA.astro",
-      "description": "Call-to-action section with buttons",
-      "props": {},
-      "slots": {},
-      "examples": [
-        {
-          "title": "CTA section",
-          "code": "<CTA />"
-        }
-      ],
-      "notes": "Uses hardcoded content, needs to be modified to accept props for MCP usage"
-    },
-    {
-      "name": "FAQ",
-      "path": "src/components/sections/FAQ.astro",
-      "description": "Frequently asked questions section",
-      "props": {},
-      "slots": {},
-      "examples": [
-        {
-          "title": "FAQ section",
-          "code": "<FAQ />"
-        }
-      ],
-      "notes": "Component exists but content structure needs to be analyzed for MCP compatibility"
-    }
-  ],
-  "guidelines": {
-    "prop_naming": "Use camelCase for prop names",
-    "required_props": "Always specify required props in component interface",
-    "default_values": "Provide sensible defaults for optional props",
-    "accessibility": "Include proper ARIA attributes and semantic HTML",
-    "responsive": "Ensure components work on mobile and desktop",
-    "slots": "Use named slots when multiple content areas are needed"
-  },
-  "mcp_recommendations": {
-    "data_driven": "Components should accept data via props rather than hardcoding content",
-    "schema_validation": "Validate prop data against expected types",
-    "error_handling": "Handle missing or invalid props gracefully",
-    "documentation": "Provide clear prop interfaces and usage examples"
-  }
+	"$schema": "http://json-schema.org/draft-07/schema#",
+	"title": "Component Manifest",
+	"description": "Machine-readable manifest of available Astro components",
+	"version": "1.0.0",
+	"components": [
+		{
+			"name": "Button",
+			"path": "src/components/ui/Button.astro",
+			"description": "Reusable button component with multiple variants and sizes",
+			"props": {
+				"variant": {
+					"type": "string",
+					"required": false,
+					"default": "primary",
+					"options": ["primary", "secondary", "outline"],
+					"description": "Visual style variant"
+				},
+				"size": {
+					"type": "string",
+					"required": false,
+					"default": "md",
+					"options": ["sm", "md", "lg"],
+					"description": "Button size"
+				},
+				"href": {
+					"type": "string",
+					"required": false,
+					"description": "Link destination (renders as anchor if provided)"
+				},
+				"type": {
+					"type": "string",
+					"required": false,
+					"default": "button",
+					"options": ["button", "submit", "reset"],
+					"description": "Button type attribute"
+				},
+				"class": {
+					"type": "string",
+					"required": false,
+					"description": "Additional CSS classes"
+				}
+			},
+			"slots": {
+				"default": {
+					"required": true,
+					"description": "Button content/text"
+				}
+			},
+			"examples": [
+				{
+					"title": "Primary button",
+					"code": "<Button>Click me</Button>"
+				},
+				{
+					"title": "Link button with variant",
+					"code": "<Button href=\"/contact\" variant=\"outline\" size=\"lg\">Get in Touch</Button>"
+				}
+			]
+		},
+		{
+			"name": "Nav",
+			"path": "src/components/Nav.astro",
+			"description": "Main site navigation with mobile support",
+			"props": {},
+			"slots": {},
+			"examples": [
+				{
+					"title": "Basic navigation",
+					"code": "<Nav />"
+				}
+			],
+			"notes": "Uses PUBLIC_SITE_NAME environment variable, automatically highlights current page"
+		},
+		{
+			"name": "Footer",
+			"path": "src/components/Footer.astro",
+			"description": "Site footer with links and contact info",
+			"props": {},
+			"slots": {},
+			"examples": [
+				{
+					"title": "Basic footer",
+					"code": "<Footer />"
+				}
+			],
+			"notes": "Uses PUBLIC_SITE_NAME environment variable, displays current year"
+		},
+		{
+			"name": "Hero",
+			"path": "src/components/sections/Hero.astro",
+			"description": "Hero section with title, subtitle and CTA buttons",
+			"props": {},
+			"slots": {},
+			"examples": [
+				{
+					"title": "Basic hero section",
+					"code": "<Hero />"
+				}
+			],
+			"notes": "Currently uses hardcoded content, needs to be modified to accept props for MCP usage"
+		},
+		{
+			"name": "Features",
+			"path": "src/components/sections/Features.astro",
+			"description": "Features showcase section with icon, title, and description",
+			"props": {},
+			"slots": {},
+			"examples": [
+				{
+					"title": "Features section",
+					"code": "<Features />"
+				}
+			],
+			"notes": "Currently uses hardcoded features array, needs to be modified to accept props for MCP usage"
+		},
+		{
+			"name": "CTA",
+			"path": "src/components/sections/CTA.astro",
+			"description": "Call-to-action section with buttons",
+			"props": {},
+			"slots": {},
+			"examples": [
+				{
+					"title": "CTA section",
+					"code": "<CTA />"
+				}
+			],
+			"notes": "Uses hardcoded content, needs to be modified to accept props for MCP usage"
+		},
+		{
+			"name": "FAQ",
+			"path": "src/components/sections/FAQ.astro",
+			"description": "Frequently asked questions section",
+			"props": {},
+			"slots": {},
+			"examples": [
+				{
+					"title": "FAQ section",
+					"code": "<FAQ />"
+				}
+			],
+			"notes": "Component exists but content structure needs to be analyzed for MCP compatibility"
+		}
+	],
+	"guidelines": {
+		"prop_naming": "Use camelCase for prop names",
+		"required_props": "Always specify required props in component interface",
+		"default_values": "Provide sensible defaults for optional props",
+		"accessibility": "Include proper ARIA attributes and semantic HTML",
+		"responsive": "Ensure components work on mobile and desktop",
+		"slots": "Use named slots when multiple content areas are needed"
+	},
+	"mcp_recommendations": {
+		"data_driven": "Components should accept data via props rather than hardcoding content",
+		"schema_validation": "Validate prop data against expected types",
+		"error_handling": "Handle missing or invalid props gracefully",
+		"documentation": "Provide clear prop interfaces and usage examples"
+	}
 }
