@@ -15,7 +15,7 @@
 		"ci": "pnpm lint && pnpm build"
 	},
 	"dependencies": {
-		"astro": "^4.15.4",
+		"astro": "^4.16.19",
 		"@astrojs/tailwind": "^5.1.0",
 		"@astrojs/cloudflare": "^11.0.4",
 		"hono": "^4.6.3",
