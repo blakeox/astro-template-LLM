@@ -19,7 +19,7 @@
 		"template:help": "node tools/template-manager.cjs help"
 	},
 	"dependencies": {
-		"astro": "^4.15.4",
+		"astro": "^5.15.6",
 		"@astrojs/tailwind": "^5.1.0",
 		"@astrojs/cloudflare": "^11.0.4",
 		"hono": "^4.6.3",
